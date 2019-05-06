@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+""" Update repositories
+"""
+
+import sys
+from os.path import join as pjoin, split as psplit, abspath, dirname
+from subprocess import check_call
+
+sys.path.append(abspath(pjoin(dirname(__file__), '..')))
+
+from params import PROJECTS
+
+for org, repo in PROJECTS:
+    url = f'https://github.com/{org}/{repo}'
+    check_call(f'(cd {repo} && git remote set-url origin {url})', shell=True)
+    check_call(f'(cd {repo} && git remote -v)', shell=True)
+    check_call(f'(cd {repo} && git fetch origin)', shell=True)

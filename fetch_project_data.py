@@ -8,26 +8,13 @@ The project data is all public, but you'll need your Github credentials to
 overcome the rate limits on anonymous queries.
 """
 
-import sys
 import json
 import math
 from argparse import ArgumentParser
 
 import github3
 
-
-PROJECTS = (
-    ('numpy', 'numpy'),
-    ('scipy', 'scipy'),
-    ('matplotlib', 'matplotlib'),
-    ('scikit-learn', 'scikit-learn'),
-    ('scikit-image', 'scikit-image'),
-    ('statsmodels', 'statsmodels'),
-    ('pandas-dev', 'pandas'),
-    ('h5py', 'h5py'),
-    ('cython', 'cython'),
-    ('sympy', 'sympy'),
-)
+from params import PROJECTS
 
 
 class GHGetter:
