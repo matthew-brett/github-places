@@ -3,12 +3,12 @@
 """
 
 import sys
-from os.path import join as pjoin, split as psplit, abspath, dirname
+from os.path import join as pjoin, abspath, dirname
 from subprocess import check_call
 
 sys.path.append(abspath(pjoin(dirname(__file__), '..')))
 
-from params import PROJECTS
+from gputils import PROJECTS
 
 for org, repo in PROJECTS:
     url = f'https://github.com/{org}/{repo}'

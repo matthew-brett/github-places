@@ -360,10 +360,6 @@ LOCATIONS = {
     'thegedge': 'CAN',
     # Email address; nothing else go on.
     'stevech1097@yahoo.com.au': 'AUS',
-    # https://www.linkedin.com/in/davidmcooke/
-    # I have a 2007 email to the Numpy mailing list by
-    # cookedm@physics.mcmaster.ca on "Moving numexpr to its own project
-    'cookedm@localhost': 'CAN',
 }
 
 # For contributors where automated detection of Github user fails.
@@ -375,6 +371,13 @@ EMAIL2USER = {
     'brian.jorgensen@gmail.com': 'b33j0r',
     # Nothing but email to go on here
     'stevech1097@yahoo.com.au': '__steve_chaplin__',
+    # https://www.linkedin.com/in/davidmcooke/
+    # https://mail.python.org/pipermail/scipy-dev/2008-April/008873.html
+    # with email cookedm@physics.mcmaster.ca
+    # Probably https://twitter.com/dmcooke (location Chilliwack CAN)
+    # and therefore
+    # https://github.com/dmcooke (location Chilliwack CAN)
+    'cookedm@localhost': 'dmcooke',
 }
 
 

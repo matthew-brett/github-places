@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 
 import github3
 
-from params import PROJECTS
+from gputils import PROJECTS
 
 
 class GHGetter:
