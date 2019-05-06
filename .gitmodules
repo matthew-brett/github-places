@@ -1,0 +1,30 @@
+[submodule "numpy"]
+	path = numpy
+	url = https://github.com/numpy/numpy
+[submodule "scipy"]
+	path = scipy
+	url = https://github.com/scipy/scipy
+[submodule "matplotlib"]
+	path = matplotlib
+	url = https://github.com/matplotlib/matplotlib
+[submodule "sympy"]
+	path = sympy
+	url = https://github.com/sympy/sympy
+[submodule "statsmodels"]
+	path = statsmodels
+	url = https://github.com/statsmodels/statsmodels
+[submodule "pandas"]
+	path = pandas
+	url = https://github.com/pandas-dev/pandas
+[submodule "cython"]
+	path = cython
+	url = https://github.com/cython/cython
+[submodule "h5py"]
+	path = h5py
+	url = https://github.com/h5py/h5py
+[submodule "scikit-image"]
+	path = scikit-image
+	url = https://github.com/scikit-image/scikit-image
+[submodule "scikit-learn"]
+	path = scikit-learn
+	url = https://github.com/scikit-learn/scikit-learn
