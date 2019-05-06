@@ -2,6 +2,8 @@
 """
 import json
 import re
+import github3
+from subprocess import check_call
 
 import numpy as np
 
@@ -31,25 +33,25 @@ LOCATIONS = {
     'leejjoon': 'Daejeon, South Korea',
     # iki.fi email address
     'pv': 'Finland',
-    # I've stayed in his house
+    # I know Eric.
     'eric-jones': 'Austin, TX',
     # https://vorpus.org/
     'njsmith': 'Berkeley, CA',
     # https://www.linkedin.com/in/allan-haldane-486510131/
     'ahaldane': 'Philadelphia, Pennsylvania, USA',
-    # Works at Enthought, based in Texas
+    # Works at Enthought. Enthought based in Austin, Texas. Most
+    # recent commits UTC-8.
     'rkern': 'Austin, TX',
     # Was in Berlin in 2011.
     # https://wiki.kubuntu.org/JulianTaylor/MOTUApplication
     # Now seems to be in the European Southern Observatory near Munich
     # www.eso.org/~jagonzal/ADASS-2016/P6-11/P6-11.tex
     'juliantaylor': 'Bayern, Germany',
-    # I know him via BIDS
+    # I know him via BIDS.
     'mattip': 'Israel',
-    # Stefan vdW told me
+    # Stefan vdW told me.
     'seberg': 'Göttingen, Germany',
-    # Warren is very difficult to track down.  He had an Enthought
-    # address until 2012 in the Scipy logs.  Also this:
+    # Warren had an Enthought address until 2012 in the Scipy logs.  Also this:
     # https://www.instantcheckmate.com/people/warren-weckesser/
     'WarrenWeckesser': 'Austin, Texas',
     # Found: alex <argriffi@ncsu.edu>, author of
@@ -89,27 +91,290 @@ LOCATIONS = {
     # In git log: Justin Grana <jg3705a@student.american.edu>
     'j-grana6': 'Washington DC, USA',
     # https://www.linkedin.com/in/pquackenbush/
-    # Location "Baghdad on the Bayou" could be Houston, which fits above.
+    # Github location "Baghdad on the Bayou" could be Houston, which fits
+    # above:
     # https://www.houstonpress.com/news/houston-101-yet-another-new-nickname-for-the-bayou-city-er-space-city-um-h-town-6738937
     'thequackdaddy': 'Houston, Texas',
     # https://www.bartonbaker.us
     'bartbkr': 'Rhode Island, USA',
-    # THis commit by yogabonito has email aleksandar.karakas@student.tugraz.at
+    # This commit by yogabonito has email aleksandar.karakas@student.tugraz.at
     # https://github.com/statsmodels/statsmodels/commit/bf2d2b0d0cf76d99149503aee17925eaf4d117c4
     'yogabonito': 'Graz, Austria',
     # https://tomaugspurger.github.io/pages/about.html
     'TomAugspurger': 'Des Moines, USA',
     # https://www.linkedin.com/in/jeff-reback-3a20876/
     'jreback': 'NYC, USA',
+    # I emailed them and they replied.
+    'gfyoung': 'USA',
     # https://jorisvandenbossche.github.io/pages/about.html
     'jorisvandenbossche': 'Paris, France',
-    # Has email terji78@gmail.com . Gives Terji Petersen
+    # Has email terji78@gmail.com . Gives T Petersen from:
     # https://mail.python.org/pipermail/tutor/2005-May/038446.html
     # Discussing a chess program, suggesting
     # https://chess-db.com/public/pinfo.jsp?id=7200293
+    # Above profile has 1978 birth year matching terji78.
     'topper-123': 'Faroe Islands',
+    # https://directory.science.mq.edu.au/users/tjames
+    'aragilar': 'Sydney, AUS',
     # https://www.linkedin.com/in/smichr/
     'smichr': 'Minneapolis, USA',
+    # Thomas tells me via email he's based in the UK though working for
+    # https://www.xfel.eu
+    'takluyver': 'UK',
+    # Lists the HDF group as employer
+    'ajelenak-thg': 'Urbana-Champaign, USA',
+    # Email listed as <aaron.parsons@diamond.ac.uk>
+    # https://www.diamond.ac.uk/Home/ContactUs.html
+    'aaron-parsons': 'Didcot, UK',
+    # Probably
+    # https://www.xfel.eu/facility/instruments/scs/scs_group_members/index_eng.html
+    'tecki': 'Schenefeld, Germany',
+    # Lists employer as Oak Ridge National Laboratory
+    'sethrj': 'Tennessee, USA',
+    # Git log has email John Kirkham <kirkhamj@janelia.hhmi.org>
+    # https://www.janelia.org/
+    'jakirkham': 'Virginia, USA',
+    # http://consulting.behnel.de/
+    'scoder': 'München, Germany',
+    # https://www.linkedin.com/in/robert-bradshaw-1b48a07/
+    'robertwb': 'Seattle, USA',
+    # Github page lists noodle-app.io, which fits with
+    # https://www.linkedin.com/in/mark-florisson-742a0175/
+    'markflorisson': 'London, UK',
+    # By looking at git shortlog on the Cython repository, this
+    # appears to be Kurt Smith.  Last email address in log was
+    # Enthought
+    'invalid-email-address': 'USA',
+    # Email in git log is "zaur <aintellimath@gmail.com>"
+    # We also see "intellimath" Zaur Shibzukhov <szport@gmail.com>
+    # Github user intellimath based in Moscow
+    'aintellimath': 'Moscow, Russia',
+    # Affiliation listed as Faculty of Physics, Moscow State University,
+    # Moscow, Russia in https://peerj.com/preprints/2083
+    # https://skirpichev.github.io blog has me@skirpichev.msk.ru as contact
+    # address.
+    'skirpichev': 'Moscow, Russia',
+    # Maybe https://theorie.physik.uni-konstanz.de/jrioux/pdf/Rioux_cv.pdf
+    # Thesis mentions sympy
+    # https://tspace.library.utoronto.ca/bitstream/1807/31919/1/Rioux_Julien_201108_PhD_thesis.pdf
+    'jrioux': 'Konstanz, Germany',
+    # Email address in git log is Raoul Bourquin <raoulb@bluewin.ch>
+    # Does not appear to this guy, who is Github user raoulbq (from Scipy
+    # commit log):
+    # https://www.research-collection.ethz.ch/handle/20.500.11850/183094
+    'raoulb': 'Switzerland',
+    # Github repo leads to Math 405 lectures, which leads to
+    # http://www.math.ubc.ca/~cbm/
+    'cbm755': 'Canada',
+    # Git log has jegerjensen <jensen.oyvind@gmail.com> and
+    # Øyvind Jensen <jensen.oyvind@gmail.com>
+    # Github has fork of AMGXqGPU library. An 'Øyvind Jensen" is an author on 
+    # https://www.researchgate.net/publication/318949247_GPU_implementation_of_Kampmann-Wagner_numerical_precipitation_models
+    # and works in the Institute of Energy Technology, in Norway.
+    'jegerjensen': 'Lillestrøm, Norway',
+    # Google search first hit: https://users.isy.liu.se/en/es/oscarg/
+    # Photo matches Github profile
+    'oscargus': 'Linköping, Sweden',
+    # Second pass, back to Numpy again
+    # https://www.linkedin.com/in/jay-bourque-214b3341/
+    'jayvius': 'Austin, Texas',
+    # UTC-6
+    # Xoviat appears to be Paul Dao:
+    # http://vtk.1045678.n5.nabble.com/PYPI-wheels-td5745394.html
+    # Maybe USA.
+    'xoviat': 'N/K',
+    # https://www.linkedin.com/in/han-genuit-0b125253
+    # Working at:
+    # https://www.differ.nl/about-us/people/search?name=Han+Genuit
+    # Probably same as J.W.Genuit from:
+    # https://sourceforge.net/p/pytables/mailman/message/26926819/
+    '87': 'Eindhoven, Netherlands',
+    # UTC-5
+    # Going with:
+    # https://www.linkedin.com/in/eric-moore-18292032
+    # because he has forked the NRRD reading repository
+    'ewmoore': 'Pennsylvania, USA',
+    # Note same user name on LinkedIn
+    # https://www.linkedin.com/in/adbugger/?originalSubdomain=in
+    'adbugger': 'Telangana, India',
+    # Says he works with Google on Github page, and
+    # https://www.linkedin.com/in/paul-van-mulbregt-bb00412/
+    'pvanmulbregt': 'Boston, USA',
+    # https://www.linkedin.com/in/abraham-escalante-68538691/
+    # Profile photo is the same.  Did his Scipy work from Mexico.
+    'aeklant': 'Ontario, Canada',
+    # http://panm19.math.cas.cz/prednasky/PANM19_Robert_Cimrman.pdf
+    'rc': 'Czechia',
+    # Matches Github email address
+    # https://www.algopt.informatik.uni-kiel.de/en/team/m.sc.-joscha-reimer
+    'jor-': 'Kiel, Germany',
+    # https://www.uva.nl/en/profile/a/r/a.archibald/a.archibald.html?1556896598934
+    'aarchiba': 'Amsterdam, Netherlands',
+    # Universitat Bremen as employer
+    'andreas-h': 'Bremen, Germany',
+    # http://www.tonysyu.com
+    'tonysyu': 'Austin, Texas',
+    # UTC+3. Python, C++. Maybe:
+    # https://www.linkedin.com/in/kniazevnikita/?locale=en_US
+    'Kojoley': 'Russia',
+    # UTC+1. Maybe Peter Wurtz writing thesis on this page:
+    # https://www.physik.uni-kl.de/en/ag-ott/publications/phd-and-diploma-thesis
+    'pwuertz': 'Kaiserslautern, Germany',
+    # Could be author on https://www.nature.com/articles/s41598-018-26267-x
+    # at Institute for Theoretical Physics, TU Wien.  UTC+1 commits.
+    'thisch': 'Vienna, AUT',
+    # I know Paul.
+    'ivanov': 'Berkeley, CA',
+    # https://www.esrl.noaa.gov/psd/people/jeffrey.s.whitaker/
+    'jswhit': 'Colorado, USA',
+    # Probably https://digitalfellows.commons.gc.cuny.edu/?team=hannah-aizenman
+    # because of cs102 repository mentioning CCNY, and
+    # https://www.ccny.cuny.edu/compsci/faculty-office-hours
+    'story645': 'NY, USA',
+    # From git log: Michiel de Hoon
+    # One entry in git log has: Michiel de Hoon
+    # <mdehoon@tkx294.genome.gsc.riken.jp> - so:
+    # https://acgt.riken.jp/?page_id=115
+    'mdehoon': 'Yokohama, Japan',
+    # https://www2.le.ac.uk/departments/physics/people/victorzabalza
+    'zblz': 'Leicester, UK',
+    # I can't find him now, but at the time of contribution, he
+    # was an astronomer in Bonn
+    # https://academic.oup.com/mnras/article/394/4/2223/1207223
+    # https://astro.uni-bonn.de/~rschaaf/Python2008/
+    'mmetz-bn': 'Bonn, Germany',
+    # http://www.kemaleren.com/
+    # https://www.linkedin.com/in/kemaleren/
+    'kemaleren': 'Pennsylvania, USA',
+    # https://www.linkedin.com/in/diemert/
+    # via https://scikit-learn.org/stable/testimonials/testimonials.html
+    'oddskool': 'Grenoble, FRA',
+    # Google search for Bertrand Thirion
+    'bthirion': 'Saclay, FRA',
+    # Right there on the Github page
+    'NicolasHug': 'New York, USA',
+    # https://www.linkedin.com/in/maheshakya/
+    'maheshakya': 'Utah, USA',
+    # UTC-6.  Maybe
+    # https://wearerivet.com/about-us/
+    'chris-b1': 'N/K',
+    # https://pietrobattiston.it/Curriculum_Vitae_en.pdf
+    'toobaz': 'Trento, Italy',
+    # https://en.wikipedia.org/wiki/Lord_Vetinari
+    # UTC+1
+    'h-vetinari': 'N/K',
+    # Mario Pernici <mario.pernici@gmail.com> in git log.
+    # https://arxiv.org/pdf/1805.04037.pdf mentions Python / SageMath
+    'pernici': 'Milano, ITA',
+    # https://www.ibisc.univ-evry.fr/~sivanov
+    'scolobb': 'Saclay, FRA',
+    # http://parsoyaarihant.github.io/
+    'parsoyaarihant': 'Mumbai, IND',
+    # By number of cmmmits this should be Github user normalhuman
+    # with name (in git log) Leonid Kovalev
+    # https://normalhuman.github.io/progress/report refers to
+    # mathematics courses at http://coursecatalog.syr.edu
+    # https://github.com/drlvk/drlvk.github.io/blob/master/bookmarklets.html
+    # also refers to syr.edu.
+    # Sure enough:
+    # http://thecollege.syr.edu/people/faculty/pages/math/kovalev-leonid.html
+    # Dr Leonid V. Kovalev (drvlk)
+    'drlvk': 'New York, USA',
+    # https://sidhantnagpal.com/
+    'sidhantnagpal': 'Dehli, IND',
+    # https://valglad.github.io/ : was at Oxford in 2017
+    # https://github.com/sympy/sympy/wiki/GSoC-2017-Application-Valeriia-Gladkova:-Group-Theory
+    # https://arxiv.org/abs/1810.08792
+    # Email for paper above still Oxford
+    'valglad': 'Oxford, GBR',
+    # UTC+1.  Git log has oscar.j.benjamin@gmail.com . Probably
+    # http://www.bristol.ac.uk/engineering/people/oscar-j-benjamin/index.html
+    'oscarbenjamin': 'Bristol, UK',
+    # https://jashan498.github.io/blog/
+    'jashan498': 'Patiala, IND',
+    # https://blog.krastanov.org/staticprerenders/resume.html
+    'Krastanov': 'Yale, USA',
+    # Via Google: http://www.math.toronto.edu/siefkenj/homepage/index.html
+    # Link back to Github page
+    # http://www.math.toronto.edu/siefkenj/homepage/index.html#software
+    'siefkenj': 'Toronto, CAN',
+    # Brian Granger (co-lead on Jupyter)
+    # Was teaching Physics at CalPoly, now works for AWS
+    # https://www.linkedin.com/in/brian-granger-b9998662
+    'ellisonbg': 'Los Osos, USA',
+    # http://rpmuller.github.io/
+    # https://cs.sandia.gov/~rmuller/
+    'rpmuller': 'Albuquerque, USA',
+    # https://yathartha22.github.io/about
+    'Yathartha22': 'Dwarahat, IND',
+    #
+    'KaTeX-bot': 'N/K',
+    #
+    'vks': 'N/K',
+    #
+    'gilbertgede': 'N/K',
+    #
+    'vperic': 'N/K',
+    #
+    'hargup': 'N/K',
+    #
+    'akash9712': 'N/K',
+    #
+    'ethankward': 'N/K',
+    #
+    'addisonc': 'N/K',
+    #
+    'abaokar-07': 'N/K',
+    #
+    'hacman': 'N/K',
+    #
+    'ArifAhmed1995': 'N/K',
+    # avishrivastava11.github.io
+    'avishrivastava11': 'Goa, IND',
+    #
+    'jmig5776': 'N/K',
+    #
+    'RituRajSingh878': 'N/K',
+    #
+    'lazovich': 'N/K',
+    #
+    'RavicharanN': 'N/K',
+    #
+    'Subhash-Saurabh': 'N/K',
+    #
+    'divyanshu132': 'N/K',
+    #
+    'postvakje': 'N/K',
+    #
+    'vramana': 'N/K',
+    #
+    'arghdos': 'N/K',
+    # https://www.linkedin.com/in/briangregoryjorgensen
+    # Same photo as github
+    'b33j0r': 'Phoenix, USA',
+    # Git log has Jason Gedge <inferno1386@gmail.com>
+    # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
+    # https://www.gedge.ca/about.html
+    # Contributions seem to pre-date Github
+    # Github page reports location as Canada
+    'thegedge': 'CAN',
+    # Email address; nothing else go on.
+    'stevech1097@yahoo.com.au': 'AUS',
+    # https://www.linkedin.com/in/davidmcooke/
+    # I have a 2007 email to the Numpy mailing list by
+    # cookedm@physics.mcmaster.ca on "Moving numexpr to its own project
+    'cookedm@localhost': 'CAN',
+}
+
+# For contributors where automated detection of Github user fails.
+# Email is via mailmap from git shortlog -nse
+EMAIL2USER = {
+    # See location comments
+    'inferno1386@gmail.com': 'thegedge',
+    # https://api.github.com/users/b33j0r/events
+    'brian.jorgensen@gmail.com': 'b33j0r',
+    # Nothing but email to go on here
+    'stevech1097@yahoo.com.au': '__steve_chaplin__',
 }
 
 
@@ -124,6 +389,7 @@ COUNTRY_REGEXPS = (
     (r'Arizona', 'USA'),
     (r'Denver', 'USA'),
     ('Cincinnati', 'USA'),
+    ('Cleveland', 'USA'),
     ('Philadelphia', 'USA'),
     (r'Ithaca', 'USA'),
     (r'Hawaii', 'USA'),
@@ -132,55 +398,119 @@ COUNTRY_REGEXPS = (
     (r'California', 'USA'),
     (r'Bay Area', 'USA'),
     (r'San Francisco', 'USA'),
+    (r'Oakland', 'USA'),
+    (r'Merced', 'USA'),
+    (r'Irvine', 'USA'),
     (r'San Diego', 'USA'),
     (r'Los Alamos', 'USA'),
+    (r'Michigan', 'USA'),
+    (r'Los Angeles', 'USA'),
+    ('Pittsburgh', 'USA'),
     ('ABQ$', 'USA'),
+    (r'Pasadena', 'USA'),
+    ('Urbana', 'USA'),
+    (r'Mountain View', 'USA'),
+    ('Albuquerque', 'USA'),
+    ('Stanford', 'USA'),
+    ('Atlanta', 'USA'),
+    ('Cambridge, MA', 'USA'),
+    ('Madison', 'USA'),
+    ('Darnestown', 'USA'),
+    ('Silver Spring', 'USA'),
+    ('Montreal', 'CAN'),
     ('London', 'GBR'),
     ('Bristol', 'GBR'),
     ('United Kingdom', 'GBR'),
     ('UK$', 'GBR'),
-    (r'Pasadena', 'USA'),
-    (r'Mountain View', 'USA'),
     (r'Copenhagen', 'DNK'),
     ('Helsinki', 'FIN'),
-    (r'Korea', 'KOR'),
+    (r'Korea$', 'KOR'),
     (r'Seoul', 'KOR'),
     ('Paris', 'FRA'),
-    (r'Russia', 'RUS'),
+    (r'Russia$', 'RUS'),
     (r'Saint Petersburg', 'RUS'),
     (r'Perm', 'RUS'),
+    (r'Moscow', 'RUS'),
     ('Mumbai', 'IND'),
+    ('Bengaluru', 'IND'),
+    ('Kharagpur', 'IND'),
+    ('Andhra Pradesh', 'IND'),
+    ('Hyderabad', 'IND'),
     (r'Sydney', 'AUS'),
     (r'Minsk', 'BLR'),
     (r'Bologna', 'ITA'),
     ('Brazil$', 'BRA'),
+    ('Zurich', 'CHE'),
+    ('Bordeaux', 'FRA'),
+    ('Bremen$', 'DEU'),
+    ('Saclay$', 'FRA'),
+    ('United States$', 'USA'),
+    ('Berlin$', 'DEU'),
+    ('Poznan', 'POL'),
+    ('Tokyo', 'JPN'),
 )
 
 
 def get_countrish(location):
     if ';' in location:
-        return location.split(';')[-1]
+        return location.split(';')[-1].strip()
     parts = [p.strip() for p in location.split(',')]
     return parts[-1]
 
 
 def get_country(location):
     if location is None:
-        return
+        return None
     for reg, country in COUNTRY_REGEXPS:
         if re.search(reg, location):
             return country
     country = get_countrish(location)
+    if country == 'N/K':
+        return country
     is_iso = iso3 == country
     if np.any(is_iso):
         return iso3.loc[is_iso].item()
     is_country = countries == country
     if np.any(is_country):
         return iso3.loc[is_country].item()
-    return country
+    raise ValueError(f"{country} doesn't seem to be a country")
 
 
-with open('projects.json', 'rt') as fobj:
+def user_report(login, gh):
+    user_data = gh.user(login).as_dict()
+    check_call(['open', user_data['avatar_url']])
+    fields = ('login',
+              'avatar_url',
+              'gravatar_id',
+              'name',
+              'company',
+              'blog',
+              'location',
+              'email',
+              'bio',
+              'public_repos',
+              'public_gists',
+              'created_at',
+              'updated_at')
+    indent = max(len(f) for f in fields) + 2
+    fmt = '{f:<%d}: {v}' % indent
+    for f in fields:
+        print(fmt.format(f=f, v=user_data[f]))
+    gh_pages = []
+    for ext in ('io', 'com'):
+        repo = f'{login}.github.{ext}'
+        try:
+            gh.repository(login, repo)
+        except github3.exceptions.NotFoundError:
+            pass
+        else:
+            gh_pages.append(repo)
+    if gh_pages:
+        print('gh_pages:', ', '.join(gh_pages))
+        check_call(['open', 'https:' + gh_pages[0]])
+
+
+with open('projects_50.json', 'rt') as fobj:
     data = json.load(fobj)
 
 
@@ -189,4 +519,14 @@ def dump_project(proj_name):
     for login, c_data in proj['contributors'].items():
         location = LOCATIONS.get(login, c_data['user']['location'])
         country = get_country(location)
+        if country == "N/K":
+            #check_call(['open', f'https://{login}.github.com'])
+            # raise ValueError(f"{login} has no country")
+            pass
         print(f"""{login}; {c_data['contributions']}; {location}; {country}""")
+
+
+for project in data:
+    print(f"Project {project}")
+    dump_project(project)
+    print()
