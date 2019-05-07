@@ -210,6 +210,22 @@ LOCATIONS = {
     'jor-': 'Kiel, Germany',
     # https://www.uva.nl/en/profile/a/r/a.archibald/a.archibald.html?1556896598934
     'aarchiba': 'Amsterdam, Netherlands',
+    # I know Chris
+    'cburns': 'Berkeley, USA',
+    # https://mail.python.org/pipermail/scipy-user/2009-March/020175.html has
+    # email is from http://cs.uiuc.edu, matches:
+    # https://www.linkedin.com/in/nathan-bell-65963915
+    'wnbell': 'San Francisco, USA',
+    # https://groups.google.com/d/msg/pydata/kPAg3l9vLQI/gAusKjYxQUIJ
+    # Address is mattknox.ca@gmail.com. Mentions https://github.com/keeganmccallum
+    # who give location as Canada.  UTC-8 in 2008.
+    # Maybe https://www.linkedin.com/in/matt-knox-37537217
+    '__mattknox__': 'CAN',
+    # I know Tom
+    # https://www.linkedin.com/in/thomas-waite-04354a4/
+    '__tom_waite__': 'Berkeley, USA',
+    # From email address stevech1097@yahoo.com.au
+    '__steve_chaplin__': 'AUS',
     # Universitat Bremen as employer
     'andreas-h': 'Bremen, Germany',
     # http://www.tonysyu.com
@@ -362,24 +378,6 @@ LOCATIONS = {
     'stevech1097@yahoo.com.au': 'AUS',
 }
 
-# For contributors where automated detection of Github user fails.
-# Email is via mailmap from git shortlog -nse
-EMAIL2USER = {
-    # See location comments
-    'inferno1386@gmail.com': 'thegedge',
-    # https://api.github.com/users/b33j0r/events
-    'brian.jorgensen@gmail.com': 'b33j0r',
-    # Nothing but email to go on here
-    'stevech1097@yahoo.com.au': '__steve_chaplin__',
-    # https://www.linkedin.com/in/davidmcooke/
-    # https://mail.python.org/pipermail/scipy-dev/2008-April/008873.html
-    # with email cookedm@physics.mcmaster.ca
-    # Probably https://twitter.com/dmcooke (location Chilliwack CAN)
-    # and therefore
-    # https://github.com/dmcooke (location Chilliwack CAN)
-    'cookedm@localhost': 'dmcooke',
-}
-
 
 COUNTRY_REGEXPS = (
     (r'Seattle', 'USA'),
@@ -420,6 +418,7 @@ COUNTRY_REGEXPS = (
     ('Madison', 'USA'),
     ('Darnestown', 'USA'),
     ('Silver Spring', 'USA'),
+    ('Colbert', 'USA'),
     ('Montreal', 'CAN'),
     ('London', 'GBR'),
     ('Bristol', 'GBR'),

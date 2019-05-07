@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 
 import github3
 
-from gputils import PROJECTS
+from gputils import ORGS_REPOS
 
 
 class GHGetter:
@@ -90,7 +90,7 @@ def main():
         "-n", "--n-commits", type=int,
         help="Minimum mumber of commits")
     args = parser.parse_args()
-    get_save_repos(PROJECTS,
+    get_save_repos(ORGS_REPOS,
                    args.gh_user,
                    args.gh_passwd,
                    args.output,
