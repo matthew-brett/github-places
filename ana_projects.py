@@ -210,7 +210,7 @@ LOCATIONS = {
     'jor-': 'Kiel, Germany',
     # https://www.uva.nl/en/profile/a/r/a.archibald/a.archibald.html?1556896598934
     'aarchiba': 'Amsterdam, Netherlands',
-    # I know Chris
+    # I worked with Chris
     'cburns': 'Berkeley, USA',
     # https://mail.python.org/pipermail/scipy-user/2009-March/020175.html has
     # email is from http://cs.uiuc.edu, matches:
@@ -220,12 +220,12 @@ LOCATIONS = {
     # Address is mattknox.ca@gmail.com. Mentions https://github.com/keeganmccallum
     # who give location as Canada.  UTC-8 in 2008.
     # Maybe https://www.linkedin.com/in/matt-knox-37537217
-    '__mattknox__': 'CAN',
+    '+matt_knox': 'CAN',
     # I know Tom
     # https://www.linkedin.com/in/thomas-waite-04354a4/
-    '__tom_waite__': 'Berkeley, USA',
+    '+tom_waite': 'Berkeley, USA',
     # From email address stevech1097@yahoo.com.au
-    '__steve_chaplin__': 'AUS',
+    '+steve_chaplin': 'AUS',
     # Universitat Bremen as employer
     'andreas-h': 'Bremen, Germany',
     # http://www.tonysyu.com
@@ -368,12 +368,6 @@ LOCATIONS = {
     # https://www.linkedin.com/in/briangregoryjorgensen
     # Same photo as github
     'b33j0r': 'Phoenix, USA',
-    # Git log has Jason Gedge <inferno1386@gmail.com>
-    # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
-    # https://www.gedge.ca/about.html
-    # Contributions seem to pre-date Github
-    # Github page reports location as Canada
-    'thegedge': 'CAN',
     # Email address; nothing else go on.
     'stevech1097@yahoo.com.au': 'AUS',
 }

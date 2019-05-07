@@ -1,4 +1,27 @@
-""" Analyze repository commits """
+""" Find Github users for contributors to repository (or allocate fake user)
+
+Algorithm:
+
+* Analyze repository via git shortlog to find name, email and
+  number of commits for top N contributors.
+* Analyze repository .mailmap file, if present, for alternative emails of each
+  contributor.
+* Eliminate emails that are not unique to that contributor (this can happen
+  when contributors have different names but the same email address).
+* If any contributor email is a Github no-reply email, it gives the Github user
+  name, otherwise:
+* Use git to query for all commit SHAs for each candidate email.
+* Query commit matching first SHA for each email on Github, to see whether it
+  gives a username, otherwise:
+* Go through SHAs for each email, to find matching Pull Request (PR) on Github.
+  If all commits for that PR match one of this contributor's emails, or they all
+  have the same contributor name, return Github user of PR, otherwise:
+* Repeat step above twice (by default) to look for more PRs, otherwise:
+* Look for first contribotor email in EMAIL2USER dictionary; this contains a
+  manual mapping from email to Github user.  Return user if found, otherwise:
+* Return modified version of contributor name, prepended with '+', to indicate
+  invalid Github user.
+"""
 
 from os.path import basename, exists, join as pjoin
 import re
@@ -18,11 +41,14 @@ NAME_EMAIL = r'(.*?)\s+<(.*)>'
 # For contributors where automated detection of Github user fails.
 # Email is via mailmap from git shortlog -nse
 EMAIL2USER = {
+    # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
+    # https://www.gedge.ca/about.html
+    # Contributions seem to pre-date Github
     'inferno1386@gmail.com': 'thegedge',
     # https://api.github.com/users/b33j0r/events
     'brian.jorgensen@gmail.com': 'b33j0r',
-    # Nothing but email to go on here
-    'stevech1097@yahoo.com.au': '__steve_chaplin__',
+    # No signs I could see.
+    'stevech1097@yahoo.com.au': '+steve_chaplin',
     # https://codereclaimers.com/resume mentions Numpy / Scipy
     # and neat-python.  Leads to:
     'alan.mcintyre@local': 'CodeReclaimers',
@@ -35,7 +61,7 @@ EMAIL2USER = {
     'cookedm@localhost': 'dmcooke',
     # Git log shows Bill Spotz <wfspotz@sandia.gov>, matching
     'wfspotz@sandia.gov@localhost': 'wfspotz',
-    # I know Chris
+    # I worked with Chris
     'chris.burns@localhost': 'cburns',
     # https://mail.python.org/pipermail/scipy-user/2009-March/020175.html
     # mentions PyAMG:
@@ -45,7 +71,7 @@ EMAIL2USER = {
     # https://www.linkedin.com/in/pierre-g%C3%A9rard-marchant-1322a028
     'pierregm@localhost': 'pierregm',
     # No signs of this person
-    'mattknox.ca': '__matt_knox__',
+    'mattknox.ca': '+matt_knox',
     # https://www.linkedin.com/in/damianeads
     # Same picture as
     # https://github.com/deads
@@ -54,8 +80,8 @@ EMAIL2USER = {
     # Linked to from:
     # https://github.com/edschofield
     'edschofield@localhost': 'edschofield',
-    # No Github account I can see
-    'tom.waite@localhost': '__tom_waite__',
+    # No Github account I can see.
+    'tom.waite@localhost': '+tom_waite',
     # https://mail.python.org/pipermail/scipy-user/2007-May/012415.html
     # Name Albert Strasheim leads to:
     # https://github.com/alberts
