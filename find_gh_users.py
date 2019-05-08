@@ -23,7 +23,7 @@ Algorithm:
   invalid Github user.
 """
 
-from os.path import basename, exists, join as pjoin
+from os.path import basename, exists, join as pjoin, abspath
 import re
 from subprocess import check_output
 from collections import defaultdict
@@ -32,10 +32,10 @@ import json
 
 import pandas as pd
 
-from gputils import graphql_query, get_repo
+from gputils import graphql_query, get_repo, REPO2ORG
 
 
-NAME_EMAIL = r'(.*?)\s+<(.*)>'
+NAME_EMAIL_REGEX = r'(.*?)\s+<(.*)>'
 
 
 # For contributors where automated detection of Github user fails.
@@ -96,12 +96,63 @@ EMAIL2USER = {
 }
 
 
-def get_authors(repo_path):
+class Contributor:
+
+    def __init__(self, names, emails, repo_commits=None):
+        self.names = [names] if isinstance(names, str) else list(names)
+        self.emails = [emails] if isinstance(emails, str) else list(emails)
+        self.repo_commits = dict(repo_commits) if repo_commits else {}
+
+    def __eq__(self, other):
+        return (self.names == self.names and
+                self.emails == self.emails and
+                self.repo_commits == self.repo_commits)
+
+class Repo:
+
+    contributor_maker = Contributor
+
+    def __init__(self, name, org=None, path=None):
+        self.name = name
+        self.org = org if org else REPO2ORG[name]
+        self.path = abspath(path if path else name)
+        self._gh_repo = None
+
+    @property
+    def gh_repo(self):
+        self._gh_repo = (self._gh_repo if self.gh_repo else
+                         get_repo(self.name, self.org))
+        return self._gh_repo
+
+    def _cmd_in_repo(self, cmd):
+        return check_output(cmd,
+                            cwd=self.path,
+                            text=True)
+
+    def contributors(self):
+        out = self._cmd_in_repo(['git', 'shortlog', '-nse'])
+        lines = out.splitlines()
+        for line in lines:
+            match = re.match(rf'\s*(\d+)\s+{NAME_EMAIL_REGEX}', line)
+            n_commits, name, email = match.groups()
+            yield self.contributor_maker(name, email, {self.name: n_commits})
+
+
+def find_users(repo_name):
+    contributors = get_contributors(repo_name)
+    canonical_map = {email: [] for (name, email, no) in contributors}
+    alternative_map = get_email_map(repo_name)
+    full_map = merge_maps(canonical_map, alternative_map)
+    full_map = deduplicate(full_map)
+    return get_usernames(full_map, repo_name)
+
+
+def get_contributors(repo_path):
     out = check_output(f'(cd {repo_path} && git shortlog -nse)',
                        shell=True, text=True)
     vals = []
     for line in out.splitlines():
-        match = re.match(rf'\s*(\d+)\s+{NAME_EMAIL}', line)
+        match = re.match(rf'\s*(\d+)\s+{NAME_EMAIL_REGEX}', line)
         vals.append(match.groups())
     nos, names, emails = zip(*vals)
     df = pd.DataFrame()
@@ -135,13 +186,52 @@ def sha2login(sha, repo):
     return author.get('login') if author else None
 
 
-def get_email_map(repo_path, emails):
-    mailmap_fname = pjoin(repo_path, '.mailmap')
+def get_email_map(repo_path):
+    """ Analyze ``.mailmap`` file for altnerative emails
+
+    Parameters
+    ----------
+    repo_path : str
+        Path to repository.
+
+    Returns
+    -------
+    remapper : dict
+        Dict with (key, value) pairs of (canonical email, list of alternative
+        emails).
+    """
+    fname = pjoin(repo_path, '.mailmap')
+    if not exists(fname):
+        return {}
+    mapper = parse_mailmap(fname)
+    remapper = defaultdict(list)
+    for find, replace in mapper.items():
+        if replace is None:
+            continue
+        remapper[replace].append(find)
+    return remapper
+
+
+def parse_mailmap(fileish):
+    """ Analyze ``.mailmap`` file `fileish`
+
+    Parameters
+    ----------
+    fileish : str or file-like object
+        Path to repository or file-like object implementing `read` to return
+        string.
+
+    Returns
+    -------
+    mapper : dict
+        Dict with (key, value) pairs of (not-canonical email, canonical email).
+    """
     mapper = {}
-    if not exists(mailmap_fname):
-        return mapper
-    with open(mailmap_fname, 'rt') as fobj:
-        content = fobj.read()
+    if hasattr(fileish, 'read'):
+        content = fileish.read()
+    else:
+        with open(fileish, 'rt') as fobj:
+            content = fobj.read()
     for line in content.splitlines():
         line = line.strip()
         if line == '' or line.strip().startswith('#'):
@@ -161,12 +251,7 @@ def get_email_map(repo_path, emails):
             mapper[find] = None
         elif find != replace:
             mapper[find] = replace
-    remapper = defaultdict(list)
-    for find, replace in mapper.items():
-        if replace is None:
-            continue
-        remapper[replace].append(find)
-    return remapper
+    return mapper
 
 
 def get_username(to_try, email_lookup, repo, token=None, n_prs=3):

@@ -11,3 +11,18 @@ We can find the significant contributors using a clone of the code repository, a
 Github users often give some indication of where they live in the Location field of the Github profile, although not in a standard format.
 
 To use the Github location data, we need to match contributors from `git shortlog` to the Github user profile.   This is not always easy, as the user's email may not be registered with Github, so we need to use heuristics to make a reliable guess, or fall back to old-fashioned web-stalking, to find who the person is, and match them with their Github profile, if any.
+
+Tests
+-----
+
+Setup packages needed for tests with:
+
+```
+pip install -r test-requirements.txt
+```
+
+Run tests with
+
+```
+pytest tests
+```

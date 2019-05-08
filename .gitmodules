@@ -28,3 +28,6 @@
 [submodule "scikit-learn"]
 	path = scikit-learn
 	url = https://github.com/scikit-learn/scikit-learn
+[submodule "tests/data/h5py"]
+	path = tests/data/h5py
+	url = https://github.com/h5py/h5py

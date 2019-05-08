@@ -39,8 +39,9 @@ GH_TOKEN = get_gh_token(GH_TOKEN_FNAME)
 GH = login(token=GH_TOKEN)
 
 
-def get_repo(repo_name):
-    return GH.repository(REPO2ORG[repo_name], repo_name)
+def get_repo(repo_name, org=None):
+    org = org if org else REPO2ORG[repo_name]
+    return GH.repository(org, repo_name)
 
 
 def graphql_query(query, token=None):
