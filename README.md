@@ -12,10 +12,32 @@ Github users often give some indication of where they live in the Location field
 
 To use the Github location data, we need to match contributors from `git shortlog` to the Github user profile.   This is not always easy, as the user's email may not be registered with Github, so we need to use heuristics to make a reliable guess, or fall back to old-fashioned web-stalking, to find who the person is, and match them with their Github profile, if any.
 
+
+Running the code
+----------------
+
+Make a Github token for your account, and store it on a single line in a text
+file `.gh_token` in this directory.  Git will ignore the file, to make it more
+difficult for you to check into the repository by accident.
+
+Set up packages with:
+
+```
+pip install -r requirements.txt
+```
+
+Download required repositories with:
+
+```
+make update-repos
+```
+
 Tests
 -----
 
-Setup packages needed for tests with:
+Follow all the instructions above for setup, including `make update-repos`.
+
+Set up packages needed for tests with:
 
 ```
 pip install -r test-requirements.txt

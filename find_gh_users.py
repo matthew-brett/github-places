@@ -26,9 +26,9 @@ Algorithm:
 from os.path import basename, exists, join as pjoin, abspath
 import re
 from subprocess import check_output
-from collections import defaultdict
-from validate_email import validate_email
+from collections import defaultdict, namedtuple
 import json
+from datetime import datetime
 
 import pandas as pd
 
@@ -98,15 +98,84 @@ EMAIL2USER = {
 
 class Contributor:
 
-    def __init__(self, names, emails, repo_commits=None):
-        self.names = [names] if isinstance(names, str) else list(names)
-        self.emails = [emails] if isinstance(emails, str) else list(emails)
-        self.repo_commits = dict(repo_commits) if repo_commits else {}
+    def __init__(self, commits):
+        self.commits = commits
 
     def __eq__(self, other):
-        return (self.names == self.names and
-                self.emails == self.emails and
-                self.repo_commits == self.repo_commits)
+        return (self.commits == self.commits)
+
+    @property
+    def name(self):
+        return self.names[0]
+
+    @property
+    def email(self):
+        return self.emails[0]
+
+    @property
+    def names(self):
+        names = []
+        for c in self.commits:
+            if c.c_name not in names:
+                names.append(c.c_name)
+        for c in self.commits:
+            if c.o_name not in names:
+                names.append(c.o_name)
+        return tuple(names)
+
+    @property
+    def emails(self):
+        emails = []
+        for c in self.commits:
+            if c.c_email not in emails:
+                emails.append(c.c_email)
+        for c in self.commits:
+            if c.o_email not in emails:
+                emails.append(c.o_email)
+        return tuple(emails)
+
+
+def parse_sl_line(line):
+    fields = line.strip().split(',')
+    fields[-1] = datetime.fromisoformat(fields[-1])
+    return Commit(*fields)
+
+
+Commit = namedtuple('Commit', ('sha', 'c_name', 'c_email', 'o_name', 'o_email',
+                               'dt'))
+
+
+
+def parse_shortlog(output):
+    res = re.split('^(.*)\s+\((\d+)\):$', output, flags=re.M)
+    assert res[0] == ''
+    res = res[1:]
+    assert len(res) % 3 == 0
+    contribs = []
+    for i in range(2, len(res), 3):
+        contribs.append([parse_sl_line(L) for L in res[i].splitlines() if L])
+    return contribs
+
+
+def commits2contrib(commits):
+    c_name = commits[0].c_name
+    names = [c_name]
+    emails = []
+    timezones = []
+    for c in commits:
+        assert c.c_name == c_name
+        if c.o_name not in names:
+            names.append(c.o_name)
+        tz = c.dt.tzname()
+        if tz not in timezones:
+            timezones.append(tz)
+        for email in c.c_email, c.o_email:
+            if email not in emails:
+                emails.append(email)
+    return Contributor(names, emails), timezones
+
+
+
 
 class Repo:
 
@@ -124,18 +193,16 @@ class Repo:
                          get_repo(self.name, self.org))
         return self._gh_repo
 
-    def _cmd_in_repo(self, cmd):
+    def cmd_in_repo(self, cmd):
         return check_output(cmd,
                             cwd=self.path,
                             text=True)
 
     def contributors(self):
-        out = self._cmd_in_repo(['git', 'shortlog', '-nse'])
-        lines = out.splitlines()
-        for line in lines:
-            match = re.match(rf'\s*(\d+)\s+{NAME_EMAIL_REGEX}', line)
-            n_commits, name, email = match.groups()
-            yield self.contributor_maker(name, email, {self.name: n_commits})
+        out = self.cmd_in_repo(
+            ['git', 'shortlog', '-n', "--format=%H,%aN,%aE,%an,%ae,%aI"])
+        parsed = parse_shortlog(out)
+        return [Contributor(commits) for commits in parsed]
 
 
 def find_users(repo_name):
@@ -164,6 +231,7 @@ def get_contributors(repo_path):
 
 
 def _ok_address(address):
+    from validate_email import validate_email
     if not validate_email(address):
         return False
     name, location = address.split('@')
