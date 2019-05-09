@@ -3,103 +3,132 @@
 Algorithm:
 
 * Analyze repository via git shortlog to find name, email and
-  number of commits for top N contributors.
-* Analyze repository .mailmap file, if present, for alternative emails of each
-  contributor.
-* Eliminate emails that are not unique to that contributor (this can happen
-  when contributors have different names but the same email address).
+  sha of commits for top N contributors.
+* Look for first contribotor email in NAME2GH_USER dictionary; this contains a
+  manual mapping from email to Github user.  Return user if found, otherwise:
 * If any contributor email is a Github no-reply email, it gives the Github user
   name, otherwise:
-* Use git to query for all commit SHAs for each candidate email.
-* Query commit matching first SHA for each email on Github, to see whether it
-  gives a username, otherwise:
+* Query on Github for commit SHA of most recent commit matching each email
+  to see whether it gives a username, otherwise:
 * Go through SHAs for each email, to find matching Pull Request (PR) on Github.
-  If all commits for that PR match one of this contributor's emails, or they all
-  have the same contributor name, return Github user of PR, otherwise:
-* Repeat step above twice (by default) to look for more PRs, otherwise:
-* Look for first contribotor email in EMAIL2USER dictionary; this contains a
-  manual mapping from email to Github user.  Return user if found, otherwise:
-* Return modified version of contributor name, prepended with '+', to indicate
-  invalid Github user.
+  If all commits for that PR match one of this contributor commits, return
+  Github user of PR, otherwise:
+* Repeat step above nine times (by default) to look for more PRs, otherwise:
+* Return None
 """
 
-from os.path import basename, exists, join as pjoin, abspath
+from os.path import abspath
 import re
 from subprocess import check_output
-from collections import defaultdict, namedtuple
-import json
+from collections import namedtuple, OrderedDict
 from datetime import datetime
-
-import pandas as pd
 
 from gputils import graphql_query, get_repo, REPO2ORG
 
 
-NAME_EMAIL_REGEX = r'(.*?)\s+<(.*)>'
-
-
 # For contributors where automated detection of Github user fails.
 # Email is via mailmap from git shortlog -nse
-EMAIL2USER = {
-    # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
-    # https://www.gedge.ca/about.html
-    # Contributions seem to pre-date Github
-    'inferno1386@gmail.com': 'thegedge',
-    # https://api.github.com/users/b33j0r/events
-    'brian.jorgensen@gmail.com': 'b33j0r',
-    # No signs I could see.
-    'stevech1097@yahoo.com.au': '+steve_chaplin',
+NAME2GH_USER = {
     # https://codereclaimers.com/resume mentions Numpy / Scipy
     # and neat-python.  Leads to:
-    'alan.mcintyre@local': 'CodeReclaimers',
+    'Alan McIntyre': 'CodeReclaimers',
     # https://www.linkedin.com/in/davidmcooke/
     # https://mail.python.org/pipermail/scipy-dev/2008-April/008873.html
     # with email cookedm@physics.mcmaster.ca
     # Probably https://twitter.com/dmcooke (location Chilliwack CAN)
     # and therefore
     # https://github.com/dmcooke (location Chilliwack CAN)
-    'cookedm@localhost': 'dmcooke',
-    # Git log shows Bill Spotz <wfspotz@sandia.gov>, matching
-    'wfspotz@sandia.gov@localhost': 'wfspotz',
-    # I worked with Chris
-    'chris.burns@localhost': 'cburns',
+    'David M Cooke': 'dmcooke',
+    'cookedm': 'dmcooke',
+    # Git log shows William Spotz <wfspotz@sandia.gov@localhost> matching
+    'William Spotz': 'wfspotz',
+    # Log has Oscar Villellas <oscar.villellas@continuum.io>
+    # https://www.linkedin.com/in/oscar-villellas-38bb241
+    # has worked at Anaconda Inc (successor to Continuum).
+    'Óscar Villellas Guillén': 'ovillellas',
+    # I worked with Chris in Berkeley
+    'Chris Burns': 'cburns',
+    'Christopher Burns': 'cburns',
     # https://mail.python.org/pipermail/scipy-user/2009-March/020175.html
     # mentions PyAMG:
     # https://github.com/pyamg/pyamg/graphs/contributors
-    'wnbell@localhost': 'wnbell',
+    'Nathan Bell': 'wnbell',
     # As for Numpy.
     # https://www.linkedin.com/in/pierre-g%C3%A9rard-marchant-1322a028
-    'pierregm@localhost': 'pierregm',
+    'Pierre GM': 'pierregm',
     # No signs of this person
-    'mattknox.ca': '+matt_knox',
+    'Matt Knox': '+matt_knox',
     # https://www.linkedin.com/in/damianeads
     # Same picture as
     # https://github.com/deads
-    'damian.eads@localhost': 'deads',
+    'Damian Eads': 'deads',
     # https://pythoncharmers.com/about
     # Linked to from:
     # https://github.com/edschofield
-    'edschofield@localhost': 'edschofield',
+    'Ed Schofield': 'edschofield',
     # No Github account I can see.
-    'tom.waite@localhost': '+tom_waite',
+    'Tom Waite': '+tom_waite',
     # https://mail.python.org/pipermail/scipy-user/2007-May/012415.html
     # Name Albert Strasheim leads to:
     # https://github.com/alberts
     # Notice Twitter handle "fullung"
-    'fullung@localhost': 'alberts',
+    'fullung': 'alberts',
+    ## Matplotlib
+    # No signs I could see.
+    'Steve Chaplin': '+steve_chaplin',
+    # See merge commit b9bc7d16dc5c60cc83f2c9ce8866343cf3432afa
+    # Merging user jrevans, with PR mixing commits, but mainly from
+    # James Evans <jrevans1@earthlink.net>
+    'James R. Evans': 'jrevans',
+    ### Sympy
+    # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
+    # https://www.gedge.ca/about.html
+    # Contributions seem to pre-date Github
+    'Jason Gedge': 'thegedge',
+    # https://api.github.com/users/b33j0r/events
+    'Brian Jorgensen': 'b33j0r',
+    ## Scikit-learn
+    # PR merge commit 2b60c815a0c9467b28766eac3371f25ed3c3c7a0
+    # Merge pull request #2290 from dengemann/more_ica_improvements
+    # Commits are from dengemann <d.engemann@fz-juelich.de>
+    'dengemann': 'dengemann',
+    ## Statsmodels
+    # Tim wokred on Nipy as a consultant, from Australia
+    # THis Github page lists many Python skills, based in Australia.
+    # http://www.timl.id.au/#skills
+    'tim.leslie': 'timleslie',
+    ## Cython
+    # Commit 315efe4ca11f2965dbdc064cad00ee455f1296c9
+    # Merge branch '_numpy' of git://github.com/dagss/cython
+    # I have met Dag Sverre - Github picture matches
+    'Dag Sverre Seljebotn': 'dagss',
     # https://partiallattice.wordpress.com/about
     # Gives email as
     # smith (dot) daniel (dot) br gmail (dot) com
     # and points to:
     # https://github.com/Daniel-B-Smith
-    'smith.daniel.br@gmail.com': 'Daniel-B-Smith',
+    # Actuall, autodetected with current algorithm.
+    'Daniel B. Smith': 'Daniel-B-Smith',
 }
 
 
-class Contributor:
+def ordered_unique(sequence, out=None):
+    out = [] if out is None else list(out)
+    for e in sequence:
+        if e not in out:
+            out.append(e)
+    return tuple(out)
 
-    def __init__(self, commits):
+
+class RepoContributor:
+
+    # Number of PRs to try when searching for GH user
+    n_prs = 10
+
+    def __init__(self, commits, repo, gh_user=None):
         self.commits = commits
+        self.repo = repo
+        self.gh_user = gh_user
 
     def __eq__(self, other):
         return (self.commits == self.commits)
@@ -114,29 +143,67 @@ class Contributor:
 
     @property
     def names(self):
-        names = []
-        for c in self.commits:
-            if c.c_name not in names:
-                names.append(c.c_name)
-        for c in self.commits:
-            if c.o_name not in names:
-                names.append(c.o_name)
-        return tuple(names)
+        names = ordered_unique(c.c_name for c in self.commits)
+        return ordered_unique([c.o_name for c in self.commits], names)
 
     @property
     def emails(self):
-        emails = []
-        for c in self.commits:
-            if c.c_email not in emails:
-                emails.append(c.c_email)
-        for c in self.commits:
-            if c.o_email not in emails:
-                emails.append(c.o_email)
-        return tuple(emails)
+        emails = ordered_unique(c.c_email for c in self.commits)
+        return ordered_unique([c.o_email for c in self.commits], emails)
+
+    @property
+    def timezone_counts(self):
+        timezones = [c.dt.tzname() for c in self.commits]
+        unique = ordered_unique(timezones)
+        return tuple((tz, timezones.count(tz)) for tz in unique)
+
+    @property
+    def shas_by_email(self):
+        shas_emails = OrderedDict()
+        for email in self.emails:
+            shas = [c.sha for c in self.commits if c.o_email == email]
+            if shas:
+                shas_emails[email] = shas
+        return shas_emails
+
+    def shas2gh_user(self):
+        for shas in self.shas_by_email.values():
+            gh_user = sha2gh_user(shas[0], self.repo.gh_repo)
+            if gh_user:
+                return gh_user
+
+    def sha_prs2gh_user(self, n_prs=None, token=None):
+        # Try tracking PRs for commits.
+        # Try a few PRs for each email address
+        n_prs = self.n_prs if n_prs is None else n_prs
+        author_shas = tuple(c.sha for c in self.commits)
+        repo = self.repo.gh_repo
+        for shas in self.shas_by_email.values():
+            for i in range(self.n_prs):
+                # Modifies shas in-place
+                pr = track_pr(shas, repo, author_shas, token)
+                if len(shas) == 0:
+                    break
+                elif pr:
+                    return pr.user.login
+
+    def guess_gh_user(self, n_prs=None, token=None):
+        # Look for a github email address
+        gh_user = emails2gh_user(self.emails)
+        if gh_user:
+            return gh_user
+        # Search for login attached to most recent SHA for each email address
+        gh_user = self.shas2gh_user()
+        if gh_user:
+            return gh_user
+        return self.sha_prs2gh_user(n_prs, token)
+
+    def __len__(self):
+        return len(self.commits)
 
 
 def parse_sl_line(line):
-    fields = line.strip().split(',')
+    fields = re.split(r'\|\|', line.strip())
     fields[-1] = datetime.fromisoformat(fields[-1])
     return Commit(*fields)
 
@@ -145,41 +212,28 @@ Commit = namedtuple('Commit', ('sha', 'c_name', 'c_email', 'o_name', 'o_email',
                                'dt'))
 
 
-
 def parse_shortlog(output):
-    res = re.split('^(.*)\s+\((\d+)\):$', output, flags=re.M)
-    assert res[0] == ''
-    res = res[1:]
-    assert len(res) % 3 == 0
+    res = re.split(r'^.*\s+\(\d+\):$', output, flags=re.M)
     contribs = []
-    for i in range(2, len(res), 3):
-        contribs.append([parse_sl_line(L) for L in res[i].splitlines() if L])
+    for auth_info in res[1:]:
+        contribs.append([parse_sl_line(L) for L in auth_info.splitlines() if L])
     return contribs
 
 
-def commits2contrib(commits):
-    c_name = commits[0].c_name
-    names = [c_name]
-    emails = []
-    timezones = []
-    for c in commits:
-        assert c.c_name == c_name
-        if c.o_name not in names:
-            names.append(c.o_name)
-        tz = c.dt.tzname()
-        if tz not in timezones:
-            timezones.append(tz)
-        for email in c.c_email, c.o_email:
-            if email not in emails:
-                emails.append(email)
-    return Contributor(names, emails), timezones
-
-
+def emails2gh_user(emails):
+    gh_emails = [e for e in emails
+                if e.endswith('@users.noreply.github.com')]
+    if gh_emails:
+        assert len(gh_emails) == 1
+        gh_user = gh_emails[0].split('@')[0]
+        if '+' in gh_user:
+            gh_user = gh_user.split('+')[1]
+        return gh_user
 
 
 class Repo:
 
-    contributor_maker = Contributor
+    contrib_maker = RepoContributor
 
     def __init__(self, name, org=None, path=None):
         self.name = name
@@ -189,7 +243,7 @@ class Repo:
 
     @property
     def gh_repo(self):
-        self._gh_repo = (self._gh_repo if self.gh_repo else
+        self._gh_repo = (self._gh_repo if self._gh_repo else
                          get_repo(self.name, self.org))
         return self._gh_repo
 
@@ -200,213 +254,38 @@ class Repo:
 
     def contributors(self):
         out = self.cmd_in_repo(
-            ['git', 'shortlog', '-n', "--format=%H,%aN,%aE,%an,%ae,%aI"])
+            ['git', 'shortlog', '-n', "--format=%H||%aN||%aE||%an||%ae||%aI"])
         parsed = parse_shortlog(out)
-        return [Contributor(commits) for commits in parsed]
+        return [self.contrib_maker(commits, self) for commits in parsed]
 
 
-def find_users(repo_name):
-    contributors = get_contributors(repo_name)
-    canonical_map = {email: [] for (name, email, no) in contributors}
-    alternative_map = get_email_map(repo_name)
-    full_map = merge_maps(canonical_map, alternative_map)
-    full_map = deduplicate(full_map)
-    return get_usernames(full_map, repo_name)
-
-
-def get_contributors(repo_path):
-    out = check_output(f'(cd {repo_path} && git shortlog -nse)',
-                       shell=True, text=True)
-    vals = []
-    for line in out.splitlines():
-        match = re.match(rf'\s*(\d+)\s+{NAME_EMAIL_REGEX}', line)
-        vals.append(match.groups())
-    nos, names, emails = zip(*vals)
-    df = pd.DataFrame()
-    df['name'] = names
-    df['no'] = [int(n) for n in nos]
-    df['repo'] = basename(repo_path)
-    df.index = emails
-    return df
-
-
-def _ok_address(address):
-    from validate_email import validate_email
-    if not validate_email(address):
-        return False
-    name, location = address.split('@')
-    location = location.lower()
-    if location in ('', 'localhost') or name == '':
-        return False
-    if location.endswith('.local') or location.endswith('.(none)'):
-        return False
-    return True
-
-
-def email2shas(email, repo_dir):
-    log_cmd = f'git log --use-mailmap --author={email} --format="%H"'
-    return _cmd_in_repo(log_cmd, repo_dir).strip().splitlines()
-
-
-def sha2login(sha, repo):
+def sha2gh_user(sha, repo):
     commit = repo.commit(sha)
     author = commit.author
     return author.get('login') if author else None
 
 
-def get_email_map(repo_path):
-    """ Analyze ``.mailmap`` file for altnerative emails
+class NoPR:
+    """ Class indicates there were no PRs for this list of commits """
 
-    Parameters
-    ----------
-    repo_path : str
-        Path to repository.
 
-    Returns
-    -------
-    remapper : dict
-        Dict with (key, value) pairs of (canonical email, list of alternative
-        emails).
+def track_pr(shas_to_try, repo, author_shas, token=None):
+    """ Get PR from SHAs in `shas_to_try`, return GH user if visible in merge
+
+    Reject PRs where not all commits are in full list of authors commit shas
+    `author_shas`.
     """
-    fname = pjoin(repo_path, '.mailmap')
-    if not exists(fname):
-        return {}
-    mapper = parse_mailmap(fname)
-    remapper = defaultdict(list)
-    for find, replace in mapper.items():
-        if replace is None:
-            continue
-        remapper[replace].append(find)
-    return remapper
-
-
-def parse_mailmap(fileish):
-    """ Analyze ``.mailmap`` file `fileish`
-
-    Parameters
-    ----------
-    fileish : str or file-like object
-        Path to repository or file-like object implementing `read` to return
-        string.
-
-    Returns
-    -------
-    mapper : dict
-        Dict with (key, value) pairs of (not-canonical email, canonical email).
-    """
-    mapper = {}
-    if hasattr(fileish, 'read'):
-        content = fileish.read()
-    else:
-        with open(fileish, 'rt') as fobj:
-            content = fobj.read()
-    for line in content.splitlines():
-        line = line.strip()
-        if line == '' or line.strip().startswith('#'):
-            continue
-        emails = re.findall('<(.*?)>', line)
-        if len(emails) == 1:
-            continue
-        replace = emails[0]
-        if replace not in emails:
-            continue
-        if len(emails) > 2:
-            raise ValueError('Too many emails')
-        find = emails[1]
-        if not _ok_address(find):
-            continue
-        if find in mapper:  # Not unique to user
-            mapper[find] = None
-        elif find != replace:
-            mapper[find] = replace
-    return mapper
-
-
-def get_username(to_try, email_lookup, repo, token=None, n_prs=3):
-    gh_emails = [e for e in to_try
-                if e.endswith('@users.noreply.github.com')]
-    if gh_emails:
-        assert len(gh_emails) == 1
-        gh_user = gh_emails[0].split('@')[0]
-        if '+' in gh_user:
-            gh_user = gh_user.split('+')[1]
-        return gh_user
-    for email in to_try:
-        if email in EMAIL2USER:
-            return EMAIL2USER[email]
-        if email in email_lookup:
-            return email_lookup[email]
-    sha_lists = [email2shas(email, repo.name) for email in to_try]
-    sha_lists = [sha_list for sha_list in sha_lists if sha_list]
-    # Try getting username from first commits for this email
-    for sha_list in sha_lists:
-        user = sha2login(sha_list[0], repo)
-        if user:
-            return user
-    # Try tracking PRs for commits.
-    for sha_list in sha_lists:
-        # Try a few PRs
-        for i in range(n_prs):
-            # Modifies sha_list in-place
-            pr = track_pr(sha_list, repo, to_try, token)
-            if pr:
-                return pr.user.login
-
-
-class NoValue:
-    """ Indicates missing value """
-
-
-def pr2shas(pr):
-    return [c.sha for c in pr.commits()]
-
-
-def track_pr(sha_list, repo, emails, token=None):
-    # Only return PR if all commits have same author name
-    # Remove all PR commits from input commit list.
-    pr = sha2pr(sha_list[0], repo, token)
+    pr = sha2pr(shas_to_try[0], repo, token)
     if pr is None:
-        return
-    name = NoValue
-    result = pr
+        shas_to_try.pop(0)
+        return None
     for c in pr.commits():
-        if c.sha in sha_list:  # PR can contain commits by other authors
-            sha_list.remove(c.sha)
-        if result is None:
-            continue
-        if name is NoValue:
-            name = c.commit.author['name']
-        elif not (c.commit.author['name'] == name or
-                  c.commit.author['email'] in emails):
-            result = None
-    return result
-
-
-def get_email2login(repo_data):
-    lookup = {}
-    for login, cdata in repo_data['contributors'].items():
-        email = cdata['user']['commit_email']
-        if email:
-            lookup[email] = login
-    return lookup
-
-
-def get_usernames(emails, mapper, email_lookup, repo, token=None):
-    usernames = []
-    for email in emails:
-        if email in EMAIL2USER:
-            user = EMAIL2USER[email]
-        else:
-            to_try = [email] + mapper[email]
-            user = get_username(to_try, email_lookup, repo, token)
-        usernames.append(user)
-    return usernames
-
-
-def _cmd_in_repo(cmd, repo_dir):
-    return check_output(f'(cd {repo_dir} && {cmd})',
-                        shell=True,
-                        text=True)
+        # PRs can contain commits by other authors
+        if not c.sha in author_shas:
+            pr = None
+        if c.sha in shas_to_try:
+            shas_to_try.remove(c.sha)
+    return pr
 
 
 def sha2pr(sha, repo, token=None):
@@ -436,20 +315,37 @@ def sha2pr(sha, repo, token=None):
     return repo.pull_request(prs[0]['node']['number']) if prs else None
 
 
-def get_user_data(org_name, repo_name, gh):
-    # Get contributors
-    pass
+def contributors_for(repo_name, min_commits=50):
+    repo = Repo(repo_name)
+    contribs = repo.contributors()
+    contribs = [c for c in contribs if len(c) >= min_commits]
+    for c in contribs:
+        c.gh_user = NAME2GH_USER.get(c.name)
+        if c.gh_user is None:
+            c.gh_user = c.guess_gh_user()
+    return contribs
 
 
-def main(repo_name, min_commits=50):
-    authors = get_authors(repo_name)
-    gte_50 = authors[authors['no'] >= 50]
-    emails = gte_50.index
-    with open('projects_50_emails.json', 'rt') as fobj:
-        data = json.load(fobj)
-    email_map = get_email_map(repo_name, emails)
-    email2login = get_email2login(data[repo_name])
-    repo = get_repo(repo_name)
-    # usernames = get_usernames(emails, email_map, email2login, repo, token)
-    usernames = get_usernames(emails, email_map, {}, repo)
-    return usernames
+def all_contributors():
+    all_contribs = {}
+    for repo_name in REPO2ORG:
+        all_contribs[repo_name] = contributors_for(repo_name)
+    return all_contribs
+
+
+def save_all(contrib_map, fname):
+    with open(fname, 'wt') as fobj:
+        fobj.write('repo,name,email,gh_user\n')
+        for repo_name, contribs in contrib_map.items():
+            for c in contribs:
+                fobj.write(
+                    f'"{repo_name}","{c.name}","{c.email}","{c.gh_user}"\n')
+
+
+def main():
+    repo_contribs = all_contributors()
+    save_all(repo_contribs, 'repo_contribs.csv')
+
+
+if __name__ == '__main__':
+    main()
