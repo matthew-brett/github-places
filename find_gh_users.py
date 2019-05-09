@@ -108,6 +108,16 @@ NAME2GH_USER = {
     }
 }
 
+def merge_dicts(first, second):
+    for key in second:
+        if key not in first:
+            first[key] = second[key]
+
+
+# Numpy and Scipy share contributors
+merge_dicts(NAME2GH_USER['scipy'], NAME2GH_USER['numpy'])
+merge_dicts(NAME2GH_USER['numpy'], NAME2GH_USER['scipy'])
+
 
 def contributors_for(repo_name, org_name=None, min_commits=50):
     repo = Repo(repo_name, org_name)
@@ -124,7 +134,8 @@ def contributors_for(repo_name, org_name=None, min_commits=50):
 def all_contributors(min_commits=50):
     all_contribs = {}
     for repo_name in REPO2ORG:
-        all_contribs[repo_name] = contributors_for(repo_name, min_commits)
+        all_contribs[repo_name] = contributors_for(repo_name,
+                                                   min_commits=min_commits)
     return all_contribs
 
 

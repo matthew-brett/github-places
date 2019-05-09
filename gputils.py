@@ -203,7 +203,6 @@ def emails2gh_user(emails):
     gh_emails = [e for e in emails
                 if e.endswith('@users.noreply.github.com')]
     if gh_emails:
-        assert len(gh_emails) == 1
         gh_user = gh_emails[0].split('@')[0]
         if '+' in gh_user:
             gh_user = gh_user.split('+')[1]
