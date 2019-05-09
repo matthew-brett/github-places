@@ -3,3 +3,5 @@ __pycache__
 *.pyc
 .DS_Store
 .pytest_cache/
+# People may not want this data dumped online
+.user_cache.json

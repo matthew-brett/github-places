@@ -3,6 +3,7 @@
 See the `guess_gh_user` method of :class:`RepoContributor` for the algorithm.
 """
 
+from argparse import ArgumentParser
 from subprocess import check_output
 
 from gputils import Repo, REPO2ORG
@@ -120,10 +121,10 @@ def contributors_for(repo_name, org_name=None, min_commits=50):
     return contribs
 
 
-def all_contributors():
+def all_contributors(min_commits=50):
     all_contribs = {}
     for repo_name in REPO2ORG:
-        all_contribs[repo_name] = contributors_for(repo_name)
+        all_contribs[repo_name] = contributors_for(repo_name, min_commits)
     return all_contribs
 
 
@@ -141,8 +142,18 @@ def save_all(contrib_map, fname=None):
 
 
 def main():
-    repo_contribs = all_contributors()
-    save_all(repo_contribs)
+    parser = ArgumentParser()
+    parser.add_argument(
+        '-n', '--min-commits',
+        type=int,
+        default=50,
+        help='Minimum number of commits per repo to qualify for GH user check')
+    parser.add_argument(
+        '-o', '--out-fname',
+        help='Output filename')
+    args = parser.parse_args()
+    repo_contribs = all_contributors(args.min_commits)
+    save_all(repo_contribs, fname=args.out_fname)
 
 
 if __name__ == '__main__':

@@ -1,13 +1,18 @@
-""" Analyze project data
+""" Detect and analyze countries for Git / Github contributors
 """
+
+from os.path import exists
 import json
 import re
 import github3
+from itertools import zip_longest
 from subprocess import check_call
 
 import numpy as np
 
 import pandas as pd
+
+from gputils import GH
 
 """ The standard list of countries from the [UN statistics division
 website](https://unstats.un.org/unsd/methodology/m49/overview).
@@ -18,7 +23,16 @@ iso3 = un_countries['ISO-alpha3 Code']
 countries = un_countries['Country or Area']
 
 
-LOCATIONS = {
+""" Standard list of states in US and Canada
+"""
+na_states = pd.read_csv('state_table.csv')
+
+# Locations for Github users where location string is not useful or absent.
+# Data from web-stalking.
+# Keys are Github users.
+# Values are location strings, to be processed by location2country
+
+GH_USER2LOCATION = {
     # https://www.ocf.berkeley.edu/~antonyl/research.html
     'anntzer': 'Bordeaux, France',
     # https://www.oreilly.com/people/ben-root
@@ -372,7 +386,8 @@ LOCATIONS = {
     'stevech1097@yahoo.com.au': 'AUS',
 }
 
-
+# Regular expressions to apply to location string, resulting in 3-letter ISO
+# country code.
 COUNTRY_REGEXPS = (
     (r'Seattle', 'USA'),
     (r'Berkeley', 'USA'),
@@ -431,6 +446,7 @@ COUNTRY_REGEXPS = (
     ('Bengaluru', 'IND'),
     ('Kharagpur', 'IND'),
     ('Andhra Pradesh', 'IND'),
+    ('Kanpur', 'IND'),
     ('Hyderabad', 'IND'),
     (r'Sydney', 'AUS'),
     (r'Minsk', 'BLR'),
@@ -444,23 +460,41 @@ COUNTRY_REGEXPS = (
     ('Berlin$', 'DEU'),
     ('Poznan', 'POL'),
     ('Tokyo', 'JPN'),
+    ('Oslo', 'NOR'),
 )
 
 
-def get_countrish(location):
+DEFAULT_USER_INFO = dict(zip_longest(
+    ('login',
+     'avatar_url',
+     'gravatar_id',
+     'name',
+     'company',
+     'blog',
+     'location',
+     'email',
+     'bio',
+     'other_emails',
+     'timezone_counts',
+     'created_at',
+     'updated_at'),
+    [None]))
+
+
+def location2countrish(location):
     if ';' in location:
         return location.split(';')[-1].strip()
     parts = [p.strip() for p in location.split(',')]
     return parts[-1]
 
 
-def get_country(location):
+def location2country(location):
     if location is None:
         return None
     for reg, country in COUNTRY_REGEXPS:
         if re.search(reg, location):
             return country
-    country = get_countrish(location)
+    country = location2countrish(location)
     if country == 'N/K':
         return country
     is_iso = iso3 == country
@@ -506,23 +540,59 @@ def user_report(login, gh):
         check_call(['open', 'https:' + gh_pages[0]])
 
 
-with open('projects_50.json', 'rt') as fobj:
-    data = json.load(fobj)
+class UserGetter:
+
+    def __init__(self, cache_fname=None):
+        self._GH = GH
+        self.cache_fname = cache_fname
+        if cache_fname:
+            self.load_cache()
+        else:
+            self.clear_cache()
+
+    def load_cache(self):
+        if self.cache_fname is None:
+            raise ValueError('No cache_fname to load from')
+        if not exists(self.cache_fname):
+            self._cache = {}
+            return
+        with open(self.cache_fname, 'rt') as fobj:
+            self._cache = json.load(fobj)
+
+    def save_cache(self):
+        if self.cache_fname is None:
+            raise ValueError('No cache_fname to save to')
+        with open(self.cache_fname, 'wt') as fobj:
+            json.dump(self._cache, fobj)
+
+    def clear_cache(self):
+        self._cache = {}
+
+    def __call__(self, gh_user):
+        if gh_user not in self._cache:
+            self._cache[gh_user] = self._get_gh_user(gh_user)
+        return self._cache[gh_user]
+
+    def _get_gh_user(self, gh_user):
+        if gh_user.startswith('+') or gh_user == 'ghost':
+            return None
+        return self._GH.user(gh_user).as_dict()
 
 
-def dump_project(proj_name):
-    proj = data[proj_name]
-    for login, c_data in proj['contributors'].items():
-        location = LOCATIONS.get(login, c_data['user']['location'])
-        country = get_country(location)
-        if country == "N/K":
-            #check_call(['open', f'https://{login}.github.com'])
-            # raise ValueError(f"{login} has no country")
-            pass
-        print(f"""{login}; {c_data['contributions']}; {location}; {country}""")
+USER_GETTER = UserGetter('.user_cache.json')
 
 
-for project in data:
-    print(f"Project {project}")
-    dump_project(project)
-    print()
+def gh_user2location(gh_user):
+    if gh_user in GH_USER2LOCATION:
+        return GH_USER2LOCATION[gh_user]
+    user_data = USER_GETTER(gh_user)
+    if user_data:
+        return user_data['location']
+
+
+users = pd.read_csv('gh_user_map_e811f56.csv')
+users['location'] = users['gh_user'].apply(gh_user2location)
+users['country'] = users['location'].apply(location2country)
+
+users.to_csv('users_locations.csv', index=False)
+USER_GETTER.save_cache()
