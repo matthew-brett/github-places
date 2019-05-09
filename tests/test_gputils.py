@@ -1,4 +1,4 @@
-""" Tests for find_gh_users module
+""" Tests for gputils module
 """
 
 import sys
@@ -9,22 +9,10 @@ HERE = dirname(__file__)
 DATA_PATH = pjoin(HERE, 'data')
 sys.path.append(abspath(pjoin(HERE, '..')))
 
-from find_gh_users import (Repo, parse_shortlog, ordered_unique,
-                           emails2gh_user, parse_sl_line, sha2gh_user)
+from gputils import (Repo, parse_shortlog, ordered_unique,
+                     emails2gh_user, parse_sl_line, sha2gh_user)
 
 TEST_REPO = Repo('h5py', path=pjoin(DATA_PATH, 'h5py'))
-
-
-def test_parse_sl_line():
-    L = ('bcdd3e7e11b||M Brett, no Ph.D||mb@foo.com||'
-         'M Brett, not Ph.D||mb@bar.org||2018-08-28T23:27:25-04:00')
-    commit = parse_sl_line(L)
-    assert commit.sha == 'bcdd3e7e11b'
-    assert commit.c_name == 'M Brett, no Ph.D'
-    assert commit.c_email == 'mb@foo.com'
-    assert commit.o_name == 'M Brett, not Ph.D'
-    assert commit.o_email == 'mb@bar.org'
-    assert commit.dt == datetime.fromisoformat('2018-08-28T23:27:25-04:00')
 
 
 def test_ordered_unique():
@@ -39,6 +27,30 @@ def test_sha2gh_user():
     assert gh_user == 'KwatME'
     gh_user = sha2gh_user('0445cd39f427263b2ef015f09f776038bb5b55d0', gh_repo)
     assert gh_user == 'andrewcollette'
+
+
+def test_sha_prs2gh_user():
+    contribs = TEST_REPO.contributors()
+    # A simple one commit PR merge
+    newton = [c for c in contribs if c.name == 'Jason Newton'][0]
+    gh_user = newton.sha_prs2gh_user()
+    assert gh_user == 'nevion'
+    # First PR is mixed, second is pure
+    kirkham = [c for c in contribs if c.name == 'John Kirkham'][0]
+    gh_user = kirkham.sha_prs2gh_user()
+    assert gh_user == 'jakirkham'
+
+
+def test_parse_sl_line():
+    L = ('bcdd3e7e11b||M Brett, no Ph.D||mb@foo.com||'
+         'M Brett, not Ph.D||mb@bar.org||2018-08-28T23:27:25-04:00')
+    commit = parse_sl_line(L)
+    assert commit.sha == 'bcdd3e7e11b'
+    assert commit.c_name == 'M Brett, no Ph.D'
+    assert commit.c_email == 'mb@foo.com'
+    assert commit.o_name == 'M Brett, not Ph.D'
+    assert commit.o_email == 'mb@bar.org'
+    assert commit.dt == datetime.fromisoformat('2018-08-28T23:27:25-04:00')
 
 
 def test_parse_shortlog():
@@ -118,13 +130,3 @@ def test_find_gh_users():
     assert emails2gh_user(all_contribs[22].emails) == 'stanwest'
 
 
-def test_sha_prs2gh_user():
-    contribs = TEST_REPO.contributors()
-    # A simple one commit PR merge
-    newton = [c for c in contribs if c.name == 'Jason Newton'][0]
-    gh_user = newton.sha_prs2gh_user()
-    assert gh_user == 'nevion'
-    # First PR is mixed, second is pure
-    kirkham = [c for c in contribs if c.name == 'John Kirkham'][0]
-    gh_user = kirkham.sha_prs2gh_user()
-    assert gh_user == 'jakirkham'
