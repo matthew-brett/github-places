@@ -5,14 +5,14 @@ from os.path import exists
 import json
 import re
 import github3
-from itertools import zip_longest
 from subprocess import check_call
+from collections import zip_longest
 
 import numpy as np
 
 import pandas as pd
 
-from gputils import GH
+from gputils import GH, lupdate
 
 """ The standard list of countries from the [UN statistics division
 website](https://unstats.un.org/unsd/methodology/m49/overview).
@@ -483,21 +483,40 @@ COUNTRY_REGEXPS = (
 )
 
 
-DEFAULT_USER_INFO = dict(zip_longest(
-    ('login',
-     'avatar_url',
-     'gravatar_id',
-     'name',
-     'company',
-     'blog',
-     'location',
-     'email',
-     'bio',
-     'other_emails',
-     'timezone_counts',
-     'created_at',
-     'updated_at'),
-    [None]))
+def get_fields(obj):
+    return getattr(obj, 'fields', ())
+
+
+class pretty_dict(dict):
+
+    fields = (
+        'login',
+        'avatar_url',
+        'gravatar_id',
+        'name',
+        'company',
+        'blog',
+        'location',
+        'email',
+        'bio',
+        'other_emails',
+        'timezone_counts',
+        'created_at',
+        'updated_at')
+
+    def _all_fields(self):
+        fields = get_fields(self)
+        other_fields = tuple(
+            f for f in self if f not in fields)
+        return fields + other_fields
+
+    def __str__(self, indent=''):
+        fields = self._all_fields()
+        field_len = max(len(f) for f in fields) + 2
+        fmt = '%s{f:<%d}: {v}' % (indent, field_len)
+        lines = []
+        for f in fields:
+            lines.append(fmt.format(f=f, v=self[f]))
 
 
 def location2countrish(location):
@@ -525,26 +544,23 @@ def location2country(location):
     raise ValueError(f"{country} doesn't seem to be a country")
 
 
-def user_report(login, gh):
-    user_data = gh.user(login).as_dict()
+def user_report(gh_user, user_data):
+    user_data = dict(zip_longest(
+        DEFAULT_USER_FIELDS, [None]))
+    gh_data = USER_GETTER(gh_user)
+    if gh_data:
+        lupdate(user_data, gh_data)
+    # Get repository data
+    # Add to user_data
     check_call(['open', user_data['avatar_url']])
-    fields = ('login',
-              'avatar_url',
-              'gravatar_id',
-              'name',
-              'company',
-              'blog',
-              'location',
-              'email',
-              'bio',
-              'public_repos',
-              'public_gists',
-              'created_at',
-              'updated_at')
-    indent = max(len(f) for f in fields) + 2
+
+
+def print_dict(d):
+    indent = max(len(f) for f in d) + 2
     fmt = '{f:<%d}: {v}' % indent
-    for f in fields:
-        print(fmt.format(f=f, v=user_data[f]))
+    for k, v in d.items():
+        print(fmt.format(f=k, v=v))
+
     gh_pages = []
     for ext in ('io', 'com'):
         repo = f'{login}.github.{ext}'
