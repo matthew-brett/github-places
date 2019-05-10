@@ -6,7 +6,7 @@ import requests
 import json
 import re
 from subprocess import check_output
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, Counter
 from datetime import datetime
 
 from github3 import login
@@ -291,3 +291,19 @@ def sha2pr(sha, repo, token=None):
     if len(prs) > 1:
         raise ValueError(f'Too many PRs for {sha}')
     return repo.pull_request(prs[0]['node']['number']) if prs else None
+
+
+def gh_user2ev_emails(gh_user):
+    """ Read any emails in pushes in `gh_user`'s event feed
+
+    These can easily be someone else's commits, but it often shows the user's
+    email(s).
+    """
+    user = GH.user(gh_user)
+    emails = []
+    for e in user.events():
+        if e.type != 'PushEvent':
+            continue
+        for c in e.payload['commits']:
+            emails.append(c['author'].get('email'))
+    return Counter(emails)

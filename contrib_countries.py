@@ -384,6 +384,24 @@ GH_USER2LOCATION = {
     'b33j0r': 'Phoenix, USA',
     # Email address; nothing else go on.
     'stevech1097@yahoo.com.au': 'AUS',
+    # See find_gh_users.
+    # https://www.linkedin.com/in/dmitrey-kroshko-a729aa22/
+    '+dmitrey_kroshko': 'Ukraine',
+    # See find_gh_users.  Workst at NIST Center for Neutron Research.
+    "pkienzle": "Gaithersburg, USA",
+    # Matplotlib git log records email as "pado@passoire.fr"
+    '+alexis_bienvenue': 'FRA',
+    # See find_gh_users.
+    # From https://team.inria.fr/parietal/schwarty/
+    '+yannick_schwartz': 'Saclay, France',
+    # I know Brian
+    '+brian_hawthorne': 'USA',
+    # LinkedIn page with same photo as Github page
+    # https://www.linkedin.com/in/matthieu-perrot-225ab01b/
+    'MatthieuPerrot': 'Paris, France',
+    # See find_gh_user
+    # https://web.archive.org/web/20110826071405/http://robert-code.blogspot.com/2007/05/grbner-basis-hey-my-first-blog-entry-so.html
+    "+robert_schwarz": "Heidelberg, Germany",
 }
 
 # Regular expressions to apply to location string, resulting in 3-letter ISO
@@ -461,6 +479,7 @@ COUNTRY_REGEXPS = (
     ('Poznan', 'POL'),
     ('Tokyo', 'JPN'),
     ('Oslo', 'NOR'),
+    ('Amersfoort', 'NLD'),
 )
 
 

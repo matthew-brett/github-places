@@ -6,6 +6,8 @@ See the `guess_gh_user` method of :class:`RepoContributor` for the algorithm.
 from argparse import ArgumentParser
 from subprocess import check_output
 
+import pandas as pd
+
 from gputils import Repo, REPO2ORG
 
 
@@ -57,7 +59,31 @@ NAME2GH_USER = {
         # Name Albert Strasheim leads to:
         # https://github.com/alberts
         # Notice Twitter handle "fullung"
-        'fullung': 'alberts'
+        'fullung': 'alberts',
+        # I have worked with Jonathan. He worked on statistics in Scipy.
+        'Jonathan Taylor': 'jonathan-taylor',
+        # I know Ilan; address ilan@enthought.com; website from Github page:
+        # http://ilan.schnell-web.net.
+        "Ilan Schnell": 'ilanschnell',
+        # I know Prabhu; website from Github page:
+        # https://www.aero.iitb.ac.in/~prabhu/
+        'prabhu': 'prabhuramachandran',
+        # One hit for this name on Github, and LinkedIn; lists Python skills
+        # https://www.linkedin.com/in/tim-at-bitsofbits/
+        # All Numpy and Scipy contributions in 2006
+        # Numpy list emails from ieee.org address:
+        # https://mail.python.org/pipermail/numpy-discussion/2007-July/028358.html
+        # LinkedIn profile has "I'm a scientific programmer with an electrical
+        # engineering / physics background".
+        # User with same name, Github icon writing Python recipes in 2007
+        # http://code.activestate.com/recipes/117119-sieve-of-eratosthenes/
+        "Tim Hochberg": 'bitsofbits',
+        # Author of OpenOpt
+        # https://openopt.blogspot.com/
+        # LinkedIn page lists OpenOpt site as personal site
+        # https://www.linkedin.com/in/dmitrey-kroshko-a729aa22/
+        # No obvious Github email.
+        "Dmitrey Kroshko": '+dmitrey_kroshko',
     },
     'matplotlib': {
         # No signs I could see.
@@ -66,20 +92,35 @@ NAME2GH_USER = {
         # Merging user jrevans, with PR mixing commits, but mainly from
         # James Evans <jrevans1@earthlink.net>
         'James R. Evans': 'jrevans',
-    },
-    'sympy': {
-        # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
-        # https://www.gedge.ca/about.html
-        # Contributions seem to pre-date Github
-        'Jason Gedge': 'thegedge',
-        # https://api.github.com/users/b33j0r/events
-        'Brian Jorgensen': 'b33j0r',
+        # I have this email in my email archive, lists email address at nist.gov
+        # https://sourceforge.net/p/matplotlib/mailman/message/20367498
+        # Leading to Github user with same username, leading to
+        # http://pkienzle.github.io leading to
+        # https://scholar.google.com/citations?user=IWD0kUQAAAAJ - NIST again.
+        "pkienzle": "pkienzle",
+        # Git log email is pebarret@gmail.com, listed on this Github user page.
+        "Paul Barret": 'barrettp',
+        # No obvious Github user
+        'Alexis Bienvenüe': '+alexis_bienvenue',
     },
     'scikit-learn': {
         # PR merge commit 2b60c815a0c9467b28766eac3371f25ed3c3c7a0
         # Merge pull request #2290 from dengemann/more_ica_improvements
         # Commits are from dengemann <d.engemann@fz-juelich.de>
         'dengemann': 'dengemann',
+        # https://team.inria.fr/parietal/schwarty from email inria.fr
+        "Yannick Schwartz": '+yannick_schwartz',
+        # Search for name gives this Github user page, where website leads
+        # to CV, listing contribution to scikit-learn.
+        "Yann N. Dauphin": 'ynd',
+        # Github search gives one hit for name, with 4 repos, one of which is
+        # fork of scikit-learn
+        "Matthieu Perrot": 'MatthieuPerrot',
+    },
+    'scikit-image': {
+        # Ralf is a big contributor to numpy and scipy. Github user found
+        # there.
+        "Ralf Gommers": 'rgommers',
     },
     'statsmodels': {
         # I worked with Chris; these are contributions via the Nipy project
@@ -90,6 +131,33 @@ NAME2GH_USER = {
         # he is based in Australia.
         # http://www.timl.id.au/#skills
         'tim.leslie': 'timleslie',
+        # I know Brian; he worked with me on Nipy.
+        "brian.hawthorne": '+brian_hawthorne',
+    },
+    'sympy': {
+        # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
+        # https://www.gedge.ca/about.html
+        # Contributions seem to pre-date Github
+        'Jason Gedge': 'thegedge',
+        # https://api.github.com/users/b33j0r/events
+        'Brian Jorgensen': 'b33j0r',
+        # From Numpy, Scipy
+        "Pearu Peterson": "pearu",
+        # Can't find anything convincing
+        "Siddhanathan Shanmugam": None,
+        # Github page pins Sympy repository
+        "Jorn Baayen": 'jbaayen',
+        # Two Sanket Agarwals on Github, of which only one has a fork of Sympy
+        'Sanket Agarwal': 'snktagarwal',
+        # Commits all from 2007, look like GSoC, leading to this page
+        # https://straightupcoding.blogspot.com/2007/04/google-summer-of-code-2007-with-sympy.html
+        # From a broken link, we reach
+        # https://web.archive.org/web/20110826071405/http://robert-code.blogspot.com/2007/05/grbner-basis-hey-my-first-blog-entry-so.html
+        # "I am a student of mathematics and computer science at the university
+        # of Heidelberg, Germany"
+        # One hit for Github user search, but not clear it's the same person;
+        # no Sympy clone, works with Julia.
+        "Robert Schwarz": "+robert_schwarz",
     },
     'cython': {
         # Commit 315efe4ca11f2965dbdc064cad00ee455f1296c9
@@ -119,11 +187,23 @@ merge_dicts(NAME2GH_USER['scipy'], NAME2GH_USER['numpy'])
 merge_dicts(NAME2GH_USER['numpy'], NAME2GH_USER['scipy'])
 
 
-def contributors_for(repo_name, org_name=None, min_commits=50):
+def update_subdicts(target, source):
+    for key, value in source.items():
+        if not key in target:
+            target[key] = value
+        else:
+            target[key].update(value)
+
+
+def contributors_for(repo_name, org_name=None,
+                     start_from=None,
+                     min_commits=50):
+    start_from = {} if start_from is None else start_from
+    update_subdicts(start_from, NAME2GH_USER)
     repo = Repo(repo_name, org_name)
     contribs = repo.contributors()
     contribs = [c for c in contribs if len(c) >= min_commits]
-    repo_map = NAME2GH_USER.get(repo_name, {})
+    repo_map = start_from.get(repo_name, {})
     for c in contribs:
         c.gh_user = repo_map.get(c.name)
         if c.gh_user is None:
@@ -131,10 +211,11 @@ def contributors_for(repo_name, org_name=None, min_commits=50):
     return contribs
 
 
-def all_contributors(min_commits=50):
+def all_contributors(start_from=None, min_commits=50):
     all_contribs = {}
     for repo_name in REPO2ORG:
         all_contribs[repo_name] = contributors_for(repo_name,
+                                                   start_from=start_from,
                                                    min_commits=min_commits)
     return all_contribs
 
@@ -152,6 +233,17 @@ def save_all(contrib_map, fname=None):
                     f'"{repo_name}",{len(c)},"{c.name}","{c.email}","{c.gh_user}"\n')
 
 
+def csv2gh_map(csv_fname):
+    df = pd.read_csv(csv_fname)
+    mapping = {}
+    for i in range(len(df)):
+        repo_name, n, name, _, gh_user = df.iloc[i]
+        if not repo_name in mapping:
+            mapping[repo_name] = {}
+        mapping[repo_name][name] = gh_user
+    return mapping
+
+
 def main():
     parser = ArgumentParser()
     parser.add_argument(
@@ -162,8 +254,13 @@ def main():
     parser.add_argument(
         '-o', '--out-fname',
         help='Output filename')
+    parser.add_argument(
+        '-s', '--start-from',
+        help='Path to CSV file with established mappings to start from')
     args = parser.parse_args()
-    repo_contribs = all_contributors(args.min_commits)
+    start_from = csv2gh_map(args.start_from) if args.start_from else None
+    repo_contribs = all_contributors(start_from=start_from,
+                                     min_commits=args.min_commits)
     save_all(repo_contribs, fname=args.out_fname)
 
 
