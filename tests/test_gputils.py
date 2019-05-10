@@ -11,7 +11,8 @@ sys.path.append(abspath(pjoin(HERE, '..')))
 
 from gputils import (Repo, parse_shortlog, ordered_unique,
                      emails2gh_user, parse_sl_line, sha2gh_user,
-                     merge_dicts, update_subdicts)
+                     merge_dicts, update_subdicts,
+                     lupdate)
 
 TEST_REPO = Repo('h5py', path=pjoin(DATA_PATH, 'h5py'))
 
@@ -151,3 +152,11 @@ def test_update_subdicts():
     assert update_subdicts(e, dict(p=b, q=d)) is None
     assert e == dict(p=dict(one=11, two=2, three=3),
                      q=dict(alpha='a', beta='B', gamma='g'))
+
+
+def test_lupdate():
+    a = dict(one=1, two=2)
+    b = dict(one=11, three=3)
+    assert lupdate(a, b) is None
+    # Modified a in-place.  Only updates values present in left
+    assert a == dict(one=11, two=2)

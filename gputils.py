@@ -312,7 +312,7 @@ def gh_user2ev_emails(gh_user):
 def merge_dicts(first, second):
     """ Get keys in `second` dict missing in `first`
 
-    Modified `first` in-place and returns None.
+    Modifies `first` in-place and returns None.
     """
     for key in second:
         if key not in first:
@@ -321,6 +321,8 @@ def merge_dicts(first, second):
 
 def update_subdicts(target, source):
     """ Update `target` subdict values from `source` subdict values
+
+    Modifies `target` in-place and returns None.
     """
     for key, value in source.items():
         if not key in target:
@@ -329,3 +331,11 @@ def update_subdicts(target, source):
             target[key].update(value)
 
 
+def lupdate(left, right):
+    """ Update values from `right` for keys present in `left`
+
+    Modifies `left` in-place and returns None.
+    """
+    for key in left:
+        if key in right:
+            left[key] = right[key]
