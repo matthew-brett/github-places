@@ -6,20 +6,20 @@ import json
 import re
 import github3
 from subprocess import check_call
-from collections import zip_longest
+from pprint import pprint
 
 import numpy as np
 
 import pandas as pd
 
-from gputils import GH, lupdate
+from gputils import GH, lupdate, Repo, gh_user2ev_emails
 
 """ The standard list of countries from the [UN statistics division
 website](https://unstats.un.org/unsd/methodology/m49/overview).
 """
 
 un_countries = pd.read_csv('un_stats_division_countries.csv')
-iso3 = un_countries['ISO-alpha3 Code']
+ISO3 = un_countries['ISO-alpha3 Code']
 countries = un_countries['Country or Area']
 
 
@@ -402,84 +402,264 @@ GH_USER2LOCATION = {
     # See find_gh_user
     # https://web.archive.org/web/20110826071405/http://robert-code.blogspot.com/2007/05/grbner-basis-hey-my-first-blog-entry-so.html
     "+robert_schwarz": "Heidelberg, Germany",
+    # https://www.linkedin.com/in/domspad links to Github page
+    'domspad': 'Austin, TX',
+    # I know Yarik
+    'yarikoptic': 'USA',
+    # See find_gh_users
+    # https://www.linkedin.com/in/tim-at-bitsofbits
+    'bitsofbits': 'Scottsdale, USA',
+    # https://www.aero.iitb.ac.in/~prabhu
+    'prabhuramachandran': 'Bombay, IND',
+    # This is a bot
+    'meeseeksmachine': 'N/K',
+    # An email in git log is ncsu.edu.  Alex Griffing NCSU author on
+    # https://doi.org/10.1093/molbev/msw114
+    'argriffing': 'North Carolina, USA',
+    # GH pages links to:
+    # https://www.linkedin.com/in/michael-seifert-1045b7124
+    'MSeifert04': 'Heidelberg, Germany',
+    # https://www.research-collection.ethz.ch/handle/20.500.11850/183094
+    # matches email address: raoul.bourquin@sam.math.ethz.ch
+    # Also https://genealogy.math.ndsu.nodak.edu/id.php?id=220903
+    'raoulbq': 'Switzerland',
+    # TZ UTC are all older than 2010, and seem to be SVN commits.  More recent
+    # are UTC-7, UTC-8.  Nothing much else to go on.
+    'jrevans': 'N/K',
+    # Program making extensive use of matplotlib author Danial G Hyams:
+    # https://karczmarczuk.users.greyc.fr/TEACH/ProgSci/Progs/hyamsMoody.py
+    # https://www.linkedin.com/in/daniel-g-hyams-14453663 leads to
+    # http://www.curveexpert.net
+    # Downloading the trial version of CurveExport Pro, finds bundled copies of
+    # Numpy, Scipy, Matplotlib, wxPython.  GH repositories for this user include
+    # wxPython, pyinstaller.  TZ UTC-4,-5
+    'dhyams': 'Huntsville, USA',
+    # Likely https://www.tcm.phy.cam.ac.uk/~nn245/index.html#aboutme
+    # "Besides physics, I've been interested in Open Source software since
+    # 1995, when I first installed Linux on my computer. Over the years, I have
+    # gathered all kinds of experience in programming, system and network
+    # adminstration. ". Also mentions D languagen, and has fork of D language
+    # compiler on Github page.  Matches:
+    # https://www.linkedin.com/in/norbert-nemec
+    # (Education Regensburg, Cambridge physics 2008-9)
+    'NNemec': 'Munich, Germany',
+    # Working at Space Telescope Science Institute
+    'jaytmiller': 'Baltimore, USA',
+    # Log email megies@geophysik.uni-muenchen.de matches
+    # https://www.geophysik.uni-muenchen.de/Members/megies/publications
+    'megies': 'Munich, Germany',
+    # Account has fork of python-neo, to which he is the main contributor:
+    # https://github.com/toddrjen/python-neo/graphs/contributors
+    # This leads to:
+    # https://www.frontiersin.org/articles/10.3389/fninf.2014.00010/full
+    # which leads to:
+    # https://www.linkedin.com/in/todd-jennings-23309811
+    'toddrjen': 'Boston, USA',
+    # GH page leads to
+    # http://gael-varoquaux.info/about.html
+    'GaelVaroquaux': 'Saclay, FRA',
+    # GH page links to Saclay and Logilab.fr, leading to
+    # https://www.linkedin.com/in/vincent-michel-79526427/
+    'vmichel': 'Paris, FRA',
+    # GH page links to https://github.com/UIUC-data-mining
+    # leading to http://dm1.cs.uiuc.edu/alumni.html leading to
+    # https://www.linkedin.com/in/hlin117/
+    'hlin117': 'Champaign, USA',
+    # https://scikit-learn.org/stable/whats_new.html lists name
+    # as Jeremie du Boisberranger.  Listed as INRIA in
+    # https://github.com/glemaitre/pyparis-2018-sklearn/blob/master/README.md
+    # Listed in research engineers at https://team.inria.fr/parietal/team-members
+    'jeremiedbb': 'Saclay, FRA',
+    # Name Vincent Dubourg leads to:
+    # Scikit-learn paper https://arxiv.org/abs/1201.0490 affiliation of
+    # Institute for Advanced Mechanics (IFMA), leads to
+    # https://sites.google.com/site/vincentdubourg/software
+    'dubourg': "Cournon d'Auvergne, FRA",
+    # Email address rob@zinkov.com leads to https://www.zinkov.com/about
+    # Was at Indiana University.
+    'zaxtax': 'Oxford, UK',
+    # GH pages
+    'eickenberg': 'Berkeley, USA',
+    # GH pages
+    'albertcthomas': 'Paris, FRA',
+    # From feed contents, likely to be
+    # https://twitter.com/michaelhgraber
+    # Repositories on neural signalling.
+    # Leading to https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0081177
+    # This suggests Switzerland, but all commits UTC+9.  Give up.
+    'michigraber': 'N/K',
+    # GH pages point to wedding in Stanford, South Africa  TZ UTC+2, which is
+    # compatible.
+    'holtzhau': 'ZAF',
+    # https://www.linkedin.com/in/rishabhraj mentions GSoC scikit-image
+    'sharky93': 'Hyderabad Area, India',
+    # GH page points to http://zplab.wustl.edu/
+    'zpincus': 'St. Louis, USA',
+    # GH page points to https://www.linkedin.com/in/yl1986/
+    'yl565': 'Charlestown, USA',
+    # https://www.statsmodels.org/devel/release/version0.9.html points to
+    # https://github.com/statsmodels/statsmodels/pull/4176 and attributes it
+    # to Terence L van Zyl
+    # https://www.wits.ac.za/staff/academic-a-z-listing/v/terencevanzylwitsacza/
+    # https://www.linkedin.com/in/terence-van-zyl-b9b00b4
+    'tvanzyl': 'Johannesburg, ZAF',
+    # 943 commits to Pandas, Github account deleted.  Email yoval@gmx.com
+    # Github username y-p.  TZ +3+2-8-7.
+    'ghost': 'N/K',
+    # UTC-4.  Google search for Dustin Gadal gives:
+    # https://www.ic.gc.ca/app/scr/cc/CorporationsCanada/fdrlCrpDtls.html?corpId=9727019
+    # giving Elseware Inc, based in Ontario.
+    'Gadal': 'Ontario, CAN',
+    # GH page gives work as Argonne National Laboratory
+    'markdewing': 'Lemont, USA',
+    # Address of first email to sympy mailing list starts 'pkrat'
+    # https://groups.google.com/forum/#!searchin/sympy/Rathmann%7Csort:date/sympy/0WMK57uJd7s/QgGic7WZn3AJ
+    # One email in git log is peter@ubuntu.ubuntu-domain
+    # Peter Karl Rathmann did a Math PhD at Stanford, dated 1990
+    # https://www.genealogy.math.ndsu.nodak.edu/id.php?id=87269
+    # TZ UTC-8, UTC-7, compatible with California.  Maybe:
+    'rathmann': 'USA',
+    # Timezone UTC-3.  Google search gives a couple of plausible hits:
+    # https://www.ic.unicamp.br/ensino/pg/quali/eqm-gabriell-orisaka
+    # https://www.linkedin.com/in/gabriel-takeshi-orikasa-2a762991/
+    # Maybe Brazil
+    'gorisaka': 'BRA',
+    # Company given as IIT Delhi
+    'jtnydv25': 'Delhi, IND',
+    # Name in git log is David Ju.  TZ UTC-8.  Nothing else I could find.
+    'SgtMook': 'N/K',
+    # https://github.com/sympy/sympy/wiki/GSoC-2019-Application-SHIKSHA-RAWAT-:-Benchmarks-and-performance
+    # Location Birla Institute Of Technology,Mesra,Ranchi,India
+    'shiksha11': 'Ranchi, IND',
+    # Name in Sympy git log is Stephen Loo
+    # Timezone UTC+8
+    # https://twitter.com/stephenloo1 has Maths, Python listed in profile,
+    # and retweets the Sympy 1.4 release tweet.
+    # Twitter account location given as 香港 (Hong Kong), matching timezone.
+    'shikil': 'Hong Kong, HKG',
+    # http://shivanikohli.me/
+    # Marquette University
+    'shivanikohlii': 'Milwaukee, USA',
+    # https://groups.google.com/d/msg/sympy/y67m39bqaY0/hdm8mCDRLD4J
+    # "I'm second year postgraduate student in Saint-Petersburg Nuclear Physics
+    # Institute".
+    # https://www.linkedin.com/in/yuriy-demidov-40708646/
+    'yuriy-demidov': 'Saint Petersburg, RUS',
+    # Main contributor to this repo:
+    # https://github.com/MPIBGC-TEE/CompartmentalSystems/graphs/contributors
+    # https://github.com/MPIBGC-TEE page lists mamueller@bgc-jena.mpg.de
+    'mamueller': 'Jena, Germany',
 }
+
+
+EXTRA_COUNTRIES = {
+    'UK': 'GBR',
+    'United Kingdom': 'GBR',
+    'Italia': 'ITA',
+    'Russia': 'RUS',
+    'United States': 'USA',
+}
+
+
 
 # Regular expressions to apply to location string, resulting in 3-letter ISO
 # country code.
+def tw(word):
+    # Match word, delineated fore and aft.
+    return rf'(\W|^){word}(\W|$)'
+
 COUNTRY_REGEXPS = (
-    (r'Seattle', 'USA'),
-    (r'Berkeley', 'USA'),
-    (r'Austin', 'USA'),
-    (r'Chicago', 'USA'),
-    (r'New York', 'USA'),
-    (r'NYC', 'USA'),
-    (r'Texas', 'USA'),
-    (r'Arizona', 'USA'),
-    (r'Denver', 'USA'),
-    ('Cincinnati', 'USA'),
-    ('Cleveland', 'USA'),
-    ('Philadelphia', 'USA'),
-    (r'Ithaca', 'USA'),
-    (r'Hawaii', 'USA'),
-    (r'Boston', 'USA'),
-    (r'Nashville', 'USA'),
-    (r'California', 'USA'),
-    (r'Bay Area', 'USA'),
-    (r'San Francisco', 'USA'),
-    (r'Oakland', 'USA'),
-    (r'Merced', 'USA'),
-    (r'Irvine', 'USA'),
-    (r'San Diego', 'USA'),
-    (r'Los Alamos', 'USA'),
-    (r'Michigan', 'USA'),
-    (r'Los Angeles', 'USA'),
-    ('Pittsburgh', 'USA'),
+    (tw('Seattle'), 'USA'),
+    (tw('Berkeley'), 'USA'),
+    (tw('Austin'), 'USA'),
+    (tw('Chicago'), 'USA'),
+    (tw('New York'), 'USA'),
+    (tw('NYC'), 'USA'),
+    (tw('Texas'), 'USA'),
+    (tw('Arizona'), 'USA'),
+    (tw('Denver'), 'USA'),
+    (tw('Cincinnati'), 'USA'),
+    (tw('Cleveland'), 'USA'),
+    (tw('Philadelphia'), 'USA'),
+    (tw('Ithaca'), 'USA'),
+    (tw('Hawaii'), 'USA'),
+    (tw('Boston'), 'USA'),
+    (tw('Nashville'), 'USA'),
+    (tw('California'), 'USA'),
+    (tw('Bay Area'), 'USA'),
+    (tw('East Bay, CA'), 'USA'),
+    (tw('Raleigh'), 'USA'),
+    (tw('Hancock'), 'USA'),
+    (tw('Boulder'), 'USA'),
+    (tw('Dunwoody'), 'USA'),
+    (tw('San Francisco'), 'USA'),
+    (tw('San Jose'), 'USA'),
+    (tw('Oakland'), 'USA'),
+    (tw('Merced'), 'USA'),
+    (tw('Irvine'), 'USA'),
+    (tw('San Diego'), 'USA'),
+    (tw('Los Alamos'), 'USA'),
+    (tw('Michigan'), 'USA'),
+    (tw('Los Angeles'), 'USA'),
+    (tw('Pittsburgh'), 'USA'),
     ('ABQ$', 'USA'),
-    (r'Pasadena', 'USA'),
-    ('Urbana', 'USA'),
-    (r'Mountain View', 'USA'),
-    ('Albuquerque', 'USA'),
-    ('Stanford', 'USA'),
-    ('Atlanta', 'USA'),
-    ('Cambridge, MA', 'USA'),
-    ('Madison', 'USA'),
-    ('Darnestown', 'USA'),
-    ('Silver Spring', 'USA'),
-    ('Colbert', 'USA'),
-    ('Montreal', 'CAN'),
-    ('London', 'GBR'),
-    ('Bristol', 'GBR'),
-    ('United Kingdom', 'GBR'),
-    ('UK$', 'GBR'),
-    (r'Copenhagen', 'DNK'),
-    ('Helsinki', 'FIN'),
+    (tw('Pasadena'), 'USA'),
+    (tw('Urbana'), 'USA'),
+    (tw('Mountain View'), 'USA'),
+    (tw('Albuquerque'), 'USA'),
+    (tw('Stanford'), 'USA'),
+    (tw('Atlanta'), 'USA'),
+    (tw('Cambridge, MA'), 'USA'),
+    (tw('Madison'), 'USA'),
+    (tw('Darnestown'), 'USA'),
+    (tw('Silver Spring'), 'USA'),
+    (tw('Colbert'), 'USA'),
+    (tw('Montreal'), 'CAN'),
+    (tw('London'), 'GBR'),
+    (tw('Bristol'), 'GBR'),
+    (tw('Copenhagen'), 'DNK'),
+    (tw('Helsinki'), 'FIN'),
     (r'Korea$', 'KOR'),
-    (r'Seoul', 'KOR'),
-    ('Paris', 'FRA'),
-    (r'Russia$', 'RUS'),
-    (r'Saint Petersburg', 'RUS'),
-    (r'Perm', 'RUS'),
-    (r'Moscow', 'RUS'),
-    ('Mumbai', 'IND'),
-    ('Bengaluru', 'IND'),
-    ('Kharagpur', 'IND'),
-    ('Andhra Pradesh', 'IND'),
-    ('Kanpur', 'IND'),
-    ('Hyderabad', 'IND'),
-    (r'Sydney', 'AUS'),
-    (r'Minsk', 'BLR'),
-    (r'Bologna', 'ITA'),
+    (tw('Seoul'), 'KOR'),
+    (tw('Paris'), 'FRA'),
+    (tw('Saint Petersburg'), 'RUS'),
+    (tw('Perm'), 'RUS'),
+    (tw('Moscow'), 'RUS'),
+    (tw('Mumbai'), 'IND'),
+    (tw('Bombay'), 'IND'),
+    (tw('Delhi'), 'IND'),
+    (tw('Bengaluru'), 'IND'),
+    (tw('Kharagpur'), 'IND'),
+    (tw('Andhra Pradesh'), 'IND'),
+    (tw('Kanpur'), 'IND'),
+    (tw('Hyderabad'), 'IND'),
+    (tw('Agartala'), 'IND'),
+    (tw('Sydney'), 'AUS'),
+    (tw('Minsk'), 'BLR'),
+    (tw('Bologna'), 'ITA'),
     ('Brazil$', 'BRA'),
-    ('Zurich', 'CHE'),
-    ('Bordeaux', 'FRA'),
+    (tw('Zurich'), 'CHE'),
+    (tw('Bordeaux'), 'FRA'),
     ('Bremen$', 'DEU'),
     ('Saclay$', 'FRA'),
-    ('United States$', 'USA'),
     ('Berlin$', 'DEU'),
-    ('Poznan', 'POL'),
-    ('Tokyo', 'JPN'),
-    ('Oslo', 'NOR'),
-    ('Amersfoort', 'NLD'),
+    (tw('Poznan'), 'POL'),
+    (tw('Tokyo'), 'JPN'),
+    (tw('Oslo'), 'NOR'),
+    (tw('Amersfoort'), 'NLD'),
+    (r'IBM\s+.*[Ww]atson\s+[Rr]esearch\s+[Ll]ab', 'USA'),
+    (tw('Champaign'), 'USA'),
+    ('Washington[, ]*DC', 'USA'),
+    ('Minnepolis, MN', 'USA'),
+    (tw('Grenoble'), 'FRA'),
+    (tw('Linz'), 'AUT'),
+    (tw('Innsbruck'), 'AUT'),
+    (tw('Ekaterinburg'), 'RUS'),
+    (tw('Toronto'), 'CAN'),
+    (tw('[Ii]stanbul'), 'TUR'),
+    (tw('Goa'), 'IND'),
+    (tw('Tel Aviv'), 'ISR'),
+    (tw('Göteborg'), 'SWE'),
 )
 
 
@@ -487,7 +667,7 @@ def get_fields(obj):
     return getattr(obj, 'fields', ())
 
 
-class pretty_dict(dict):
+class FieldDict(dict):
 
     fields = (
         'login',
@@ -504,6 +684,14 @@ class pretty_dict(dict):
         'created_at',
         'updated_at')
 
+    default_value = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in self.fields:
+            if f not in self:
+                self[f] = self.default_value
+
     def _all_fields(self):
         fields = get_fields(self)
         other_fields = tuple(
@@ -516,14 +704,21 @@ class pretty_dict(dict):
         fmt = '%s{f:<%d}: {v}' % (indent, field_len)
         lines = []
         for f in fields:
-            lines.append(fmt.format(f=f, v=self[f]))
+            v = self[f]
+            if hasattr(v, 'items'):
+                lines.append(str(v))
+            else:
+                lines.append(fmt.format(f=f, v=v))
+        return '\n'.join(lines)
 
 
 def location2countrish(location):
     if ';' in location:
         return location.split(';')[-1].strip()
-    parts = [p.strip() for p in location.split(',')]
-    return parts[-1]
+    last = [p.strip() for p in location.split(',')][-1]
+    if last.endswith('.'):
+        last = last[:-1]
+    return last
 
 
 def location2country(location):
@@ -535,44 +730,87 @@ def location2country(location):
     country = location2countrish(location)
     if country == 'N/K':
         return country
-    is_iso = iso3 == country
+    found = find_country(country)
+    if found:
+        return found
+
+
+def find_country(candidate):
+    is_iso = ISO3 == candidate
     if np.any(is_iso):
-        return iso3.loc[is_iso].item()
-    is_country = countries == country
+        return ISO3.loc[is_iso].item()
+    is_country = countries == candidate
     if np.any(is_country):
-        return iso3.loc[is_country].item()
-    raise ValueError(f"{country} doesn't seem to be a country")
+        return ISO3.loc[is_country].item()
+    if candidate in EXTRA_COUNTRIES:
+        return EXTRA_COUNTRIES[candidate]
 
 
-def user_report(gh_user, user_data):
-    user_data = dict(zip_longest(
-        DEFAULT_USER_FIELDS, [None]))
+class RepoGetter:
+
+    def __init__(self):
+        self._rcache = {}
+        self._ccache = {}
+
+    def get_repo(self, repo_name):
+        if repo_name not in self._rcache:
+            self._rcache[repo_name] = Repo(repo_name)
+        return self._rcache[repo_name]
+
+    def get_contributors(self, repo_name):
+        repo = self.get_repo(repo_name)
+        if repo_name not in self._ccache:
+            self._ccache[repo_name] = repo.contributors()
+        return self._ccache[repo_name]
+
+
+REPO_GETTER = RepoGetter()
+
+
+def user_report(gh_user, user_df, browser=False):
+    user_data = FieldDict()
     gh_data = USER_GETTER(gh_user)
     if gh_data:
         lupdate(user_data, gh_data)
+    print(user_data)
     # Get repository data
     # Add to user_data
-    check_call(['open', user_data['avatar_url']])
-
-
-def print_dict(d):
-    indent = max(len(f) for f in d) + 2
-    fmt = '{f:<%d}: {v}' % indent
-    for k, v in d.items():
-        print(fmt.format(f=k, v=v))
-
     gh_pages = []
     for ext in ('io', 'com'):
-        repo = f'{login}.github.{ext}'
+        repo = f'{gh_user}.github.{ext}'
         try:
-            gh.repository(login, repo)
+            GH.repository(gh_user, repo)
         except github3.exceptions.NotFoundError:
             pass
         else:
             gh_pages.append(repo)
-    if gh_pages:
-        print('gh_pages:', ', '.join(gh_pages))
-        check_call(['open', 'https:' + gh_pages[0]])
+    print('GH pages:')
+    for ghp in gh_pages:
+        print(f'    {ghp}')
+    print('GH event emails:')
+    pprint(dict(gh_user2ev_emails(gh_user).items()))
+    print('Repository data')
+    user_rows = user_df[user_df['gh_user'] == gh_user]
+    for i in range(len(user_rows)):
+        row = user_rows.iloc[i]
+        repo_name = row['repo']
+        print(f'For {repo_name}:')
+        name = row['name']
+        contribs = [c for c in REPO_GETTER.get_contributors(repo_name)
+                    if c.name == name]
+        assert len(contribs) == 1
+        contrib = contribs[0]
+        print(f'N commits: {len(contrib)}')
+        print('Names:')
+        print('\n'.join(contrib.names))
+        print('Emails:')
+        print('\n'.join(contrib.emails))
+        print('Timezones:')
+        print(contrib.timezone_counts)
+    if browser:
+        check_call(['open', f'https://github.com/{gh_user}'])
+        for ghp in gh_pages:
+            check_call(['open', 'https:' + gh_pages[0]])
 
 
 class UserGetter:
@@ -609,7 +847,7 @@ class UserGetter:
         return self._cache[gh_user]
 
     def _get_gh_user(self, gh_user):
-        if gh_user.startswith('+') or gh_user == 'ghost':
+        if gh_user.startswith('+') or gh_user in ('ghost', 'None'):
             return None
         return self._GH.user(gh_user).as_dict()
 
@@ -625,9 +863,26 @@ def gh_user2location(gh_user):
         return user_data['location']
 
 
-users = pd.read_csv('gh_user_map_e811f56.csv')
+def gh_user2country(gh_user):
+    location = gh_user2location(gh_user)
+    if location is None:
+        print(f'{gh_user} has no location')
+        return
+    country = location2country(location)
+    if country is None:
+        print(f'{gh_user} has location {location} but no country')
+        return
+    return country
+
+
+users = pd.read_csv('gh_user_map_c45dec6.csv')
 users['location'] = users['gh_user'].apply(gh_user2location)
-users['country'] = users['location'].apply(location2country)
+users['country'] = users['gh_user'].apply(gh_user2country)
 
 users.to_csv('users_locations.csv', index=False)
 USER_GETTER.save_cache()
+
+# Shortcut report for last user without country
+bads = users['country'].isna()
+gh_user = users.loc[bads].iloc[0]['gh_user']
+user_report(gh_user, users, browser=True)

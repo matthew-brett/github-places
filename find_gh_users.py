@@ -220,11 +220,12 @@ def save_all(contrib_map, fname=None):
                     f'"{repo_name}",{len(c)},"{c.name}","{c.email}","{c.gh_user}"\n')
 
 
-def csv2gh_map(csv_fname):
-    df = pd.read_csv(csv_fname)
+def df2gh_map(df):
+    if not hasattr(df, 'iloc'):
+        df = pd.read_csv(df)
     mapping = {}
     for i in range(len(df)):
-        repo_name, n, name, _, gh_user = df.iloc[i]
+        repo_name, n, name, _, gh_user = df.iloc[i][:5]
         if not repo_name in mapping:
             mapping[repo_name] = {}
         mapping[repo_name][name] = gh_user
@@ -245,7 +246,7 @@ def main():
         '-s', '--start-from',
         help='Path to CSV file with established mappings to start from')
     args = parser.parse_args()
-    start_from = csv2gh_map(args.start_from) if args.start_from else None
+    start_from = df2gh_map(args.start_from) if args.start_from else None
     repo_contribs = all_contributors(start_from=start_from,
                                      min_commits=args.min_commits)
     save_all(repo_contribs, fname=args.out_fname)
