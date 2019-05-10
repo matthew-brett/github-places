@@ -10,7 +10,8 @@ DATA_PATH = pjoin(HERE, 'data')
 sys.path.append(abspath(pjoin(HERE, '..')))
 
 from gputils import (Repo, parse_shortlog, ordered_unique,
-                     emails2gh_user, parse_sl_line, sha2gh_user)
+                     emails2gh_user, parse_sl_line, sha2gh_user,
+                     merge_dicts, update_subdicts)
 
 TEST_REPO = Repo('h5py', path=pjoin(DATA_PATH, 'h5py'))
 
@@ -130,3 +131,23 @@ def test_find_gh_users():
     assert emails2gh_user(all_contribs[22].emails) == 'stanwest'
 
 
+def test_merge_dicts():
+    a = dict(one=1, two=2)
+    b = dict(one=11, three=3)
+    assert merge_dicts(a, b) is None
+    # Modified a in-place.  Does not with overwrite value from b
+    assert a == dict(one=1, two=2, three=3)
+
+
+def test_update_subdicts():
+    a = dict(one=1, two=2)
+    b = dict(one=11, three=3)
+    c = dict(alpha='a', beta='b')
+    d = dict(beta='B', gamma='g')
+    e = dict(p=a.copy())
+    assert update_subdicts(e, dict(q=c)) is None
+    assert e == dict(p=a, q=c)
+    e = dict(p=a.copy(), q=c.copy())
+    assert update_subdicts(e, dict(p=b, q=d)) is None
+    assert e == dict(p=dict(one=11, two=2, three=3),
+                     q=dict(alpha='a', beta='B', gamma='g'))

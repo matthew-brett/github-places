@@ -307,3 +307,25 @@ def gh_user2ev_emails(gh_user):
         for c in e.payload['commits']:
             emails.append(c['author'].get('email'))
     return Counter(emails)
+
+
+def merge_dicts(first, second):
+    """ Get keys in `second` dict missing in `first`
+
+    Modified `first` in-place and returns None.
+    """
+    for key in second:
+        if key not in first:
+            first[key] = second[key]
+
+
+def update_subdicts(target, source):
+    """ Update `target` subdict values from `source` subdict values
+    """
+    for key, value in source.items():
+        if not key in target:
+            target[key] = value
+        else:
+            target[key].update(value)
+
+

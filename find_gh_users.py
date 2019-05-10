@@ -8,7 +8,7 @@ from subprocess import check_output
 
 import pandas as pd
 
-from gputils import Repo, REPO2ORG
+from gputils import Repo, REPO2ORG, merge_dicts, update_subdicts
 
 
 # For contributors where automated detection of Github user fails.
@@ -176,23 +176,10 @@ NAME2GH_USER = {
     }
 }
 
-def merge_dicts(first, second):
-    for key in second:
-        if key not in first:
-            first[key] = second[key]
-
 
 # Numpy and Scipy share contributors
 merge_dicts(NAME2GH_USER['scipy'], NAME2GH_USER['numpy'])
 merge_dicts(NAME2GH_USER['numpy'], NAME2GH_USER['scipy'])
-
-
-def update_subdicts(target, source):
-    for key, value in source.items():
-        if not key in target:
-            target[key] = value
-        else:
-            target[key].update(value)
 
 
 def contributors_for(repo_name, org_name=None,
