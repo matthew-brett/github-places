@@ -19,9 +19,32 @@ website](https://unstats.un.org/unsd/methodology/m49/overview).
 """
 
 un_countries = pd.read_csv('un_stats_division_countries.csv')
-ISO3 = un_countries['ISO-alpha3 Code']
-countries = un_countries['Country or Area']
+un_countries = un_countries[['Country or Area', 'ISO-alpha3 Code']]
+un_countries.columns = ['country_name', 'country_code']
+# Fix UK country name
+un_countries.at[un_countries['country_code'] == 'GBR', 'country_name'] = 'United Kingdom' 
+country_names = un_countries['country_name']
+country_codes = un_countries['country_code']
 
+# Read World bank GDP data, as downloaded from
+# https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=US
+gdp_per_cap = pd.read_csv('gdp_per_capita.csv', header=2)
+gdp_per_cap = gdp_per_cap[['Country Code', '2017']]
+gdp_per_cap.columns = ['country_code', 'gdp_per_cap']
+
+# As downloaded from http://data.un.org/
+pop_data = pd.read_csv('pop_surface.csv', header=1, encoding='latin1')
+pop_2018 = pop_data[
+    (pop_data['Year'] == 2018) &
+    (pop_data['Series'] == 'Population mid-year estimates (millions)')]
+pop_2018 = pop_2018[['Unnamed: 1', 'Value']]
+pop_2018.columns = ['country_name', 'population']
+pop_2018['population'] = pop_2018['population'].apply(
+    lambda x: x.replace(',','')).astype(float)
+country_data = un_countries.merge(pop_2018,
+                                  on='country_name')
+country_data = country_data.merge(gdp_per_cap,
+                                  on='country_code')
 
 """ Standard list of states in US and Canada
 """
@@ -285,9 +308,15 @@ GH_USER2LOCATION = {
     'NicolasHug': 'New York, USA',
     # https://www.linkedin.com/in/maheshakya/
     'maheshakya': 'Utah, USA',
-    # UTC-6.  Maybe
+    # ('UTC-05:00', 22), ('UTC-06:00', 9))
+    # Two hits for Chris Bartak on LinkedIn, neither with programming
+    # experience, both in the US.  Second is social psychology student, but no
+    # sign of programming in 2015 thesis:
+    # https://shareok.org/handle/11244/15488
+    # Facebook profiles don't look interesting. Maybe:
     # https://wearerivet.com/about-us/
-    'chris-b1': None,
+    # but searches and timezones suggest USA.
+    'chris-b1': 'N/K',
     # https://pietrobattiston.it/Curriculum_Vitae_en.pdf
     'toobaz': 'Trento, Italy',
     # https://en.wikipedia.org/wiki/Lord_Vetinari
@@ -338,48 +367,79 @@ GH_USER2LOCATION = {
     'rpmuller': 'Albuquerque, USA',
     # https://yathartha22.github.io/about
     'Yathartha22': 'Dwarahat, IND',
-    #
-    'KaTeX-bot': None,
-    #
-    'vks': None,
-    #
-    'gilbertgede': None,
-    #
-    'vperic': None,
-    #
-    'hargup': None,
-    #
-    'akash9712': None,
-    #
-    'ethankward': None,
-    #
-    'addisonc': None,
-    #
-    'abaokar-07': None,
-    #
-    'hacman': None,
-    #
-    'ArifAhmed1995': None,
+    # Vinzent Steinberg
+    # Affiliation from https://arxiv.org/abs/1809.03828
+    # Frankfurt Institute for Advanced Studies
+    # arXiv.org email is gmail address in Git log
+    'vks': 'Frankfurt, Germany',
+    # This LinkedIn profile as the same photo as GH profile
+    # https://www.linkedin.com/in/gilbertgede
+    # GH pages link to papers from UC Davis, that match.
+    'gilbertgede': 'Bay Area, USA',
+    # Vladimir Perić, vlada.peric@gmail.com
+    # https://github.com/asmeurer/sympy/wiki/GSoC-2011-report:-Vladimir-Peric%CC%81:-Porting-to-Python-3
+    # "Faculty of Electrical Engineering, Czech Technical University in
+    # Prague". Matches https://www.linkedin.com/in/vladimir-p-41546a130/
+    # Blog linked on GH page reports mock lirary for Matlab, also on page
+    # above.
+    # Timezones: (('UTC+01:00', 30), ('UTC+02:00', 90), ('UTC-08:00', 11),
+    # ('UTC-07:00', 2))
+    'vperic': 'Prague, Czechia',
+    # https://www.linkedin.com/in/hargup from GH pages.
+    'hargup': 'Pune, IND',
+    # Facebook page linked from GH pages:
+    # https://www.facebook.com/akash.vaish.9
+    # "Lives in Goa"
+    'akash9712': 'Goa, IND',
+    # Emails from mail.arizone.edu in 2019, and sunbelt-medical.com in 2018
+    # (based in Tucson AZ)
+    # Timezones: (('UTC-07:00', 64),)
+    'ethankward': 'Tucson, USA',
+    # https://www.linkedin.com/in/addison-cugini-a590a868/
+    # GSoC, Calpoly, then Apple.
+    'addisonc': 'Sunnyvale, USA',
+    # https://github.com/sympy/sympy/wiki/GSoC-2018-Application-Adwait-Baokar:-Implementation-of-Vector-Integration
+    # Leads to:
+    # https://www.linkedin.com/in/adwait-baokar-429587114/
+    'abaokar-07': 'Indore, India',
+    # (('UTC-04:00', 82), ('UTC-05:00', 6))
+    # Commits from 2013-2015
+    # https://marc.info/?l=python-bugs-list&m=134188728723063&w=2
+    'hacman': 'N/K',
+    # https://github.com/sympy/sympy/wiki/GSoC-2017-Report-Arif-Ahmed-:-Integration-over-Polytopes
+    # https://www.linkedin.com/in/arif-ahmed-101856a5
+    # Timezones: (('UTC+05:30', 86),)
+    'ArifAhmed1995': 'Goa, IND',
     # avishrivastava11.github.io
     'avishrivastava11': 'Goa, IND',
-    #
-    'jmig5776': None,
-    #
-    'RituRajSingh878': None,
-    #
-    'lazovich': None,
-    #
-    'RavicharanN': None,
-    #
-    'Subhash-Saurabh': None,
-    #
-    'divyanshu132': None,
-    #
-    'postvakje': None,
-    #
-    'vramana': None,
-    #
-    'arghdos': None,
+    # GH page "Junior Undergraduate ,Mathematics and Computing at Indian
+    # Institute of Technology(BHU),Varanasi India"
+    'jmig5776': "Varanasi, India",
+    # GH page "Sophomore, Mathematics and Computing at IIT (BHU) Varanasi"
+    'RituRajSingh878': 'Varanasi, India',
+    # Same photo, username as GH page: https://www.linkedin.com/in/lazovich
+    # Cambridge, Massachusetts
+    # Timezones: (('UTC-04:00', 5), ('UTC-05:00', 64))
+    'lazovich': 'Cambridge, USA',
+    # GH pages "I'm pursuing my btech UG from IIIT Allahabad."
+    'RavicharanN': 'Allahabad, IND',
+    # GH page: "UnderGrad Student at IIT Guwahati."
+    'Subhash-Saurabh': 'Guwahati, IND',
+    # Email at iiitmanipur.ac.in
+    # https://groups.google.com/d/msg/hsf-forum/rHHsZQ5aslc/4Zlld9s1GQAJ
+    'divyanshu132': 'Manipur, IND',
+    # GH page links to https://sites.google.com/site/chaiwahwucv
+    'postvakje': 'Yorktown Heights, USA',
+    # Commits from 2012-2015
+    # https://survivejs.com/blog/codemod-interview has same logo as GH page,
+    # and points back to GH pages blog.  "I am front-end developer from India".
+    # Timezones: (('UTC+05:30', 46), ('UTC-08:00', 7), ('UTC-07:00', 3))
+    'vramana': 'IND',
+    # Nick Curtis, conn.edu address. Company AMD research.
+    # Seems to be some AMD facility at Boston, from
+    # https://www.linkedin.com/in/curtis-wickman-06b2a515/#experience-section
+    # Timezones: (('UTC-04:00', 54),)
+    'arghdos': 'USA',
     # https://www.linkedin.com/in/briangregoryjorgensen
     # Same photo as github
     'b33j0r': 'Phoenix, USA',
@@ -886,12 +946,12 @@ def location2country(location):
 
 
 def find_country(candidate):
-    is_iso = ISO3 == candidate
+    is_iso = country_codes == candidate
     if np.any(is_iso):
-        return ISO3.loc[is_iso].item()
-    is_country = countries == candidate
+        return country_codes.loc[is_iso].item()
+    is_country = country_names == candidate
     if np.any(is_country):
-        return ISO3.loc[is_country].item()
+        return country_codes.loc[is_country].item()
     if candidate in EXTRA_COUNTRIES:
         return EXTRA_COUNTRIES[candidate]
 
@@ -1028,17 +1088,42 @@ def gh_user2country(gh_user):
     return country
 
 
-short_sha = 'ed3dcdf'
+short_sha = '8d745da'
 users = pd.read_csv(f'gh_user_map_{short_sha}.csv')
 users['location'] = users['gh_user'].apply(gh_user2location)
-users['country'] = users['gh_user'].apply(gh_user2country)
+users['country_code'] = users['gh_user'].apply(gh_user2country)
 
 users.to_csv('users_locations.csv', index=False)
 USER_GETTER.save_cache()
 
 # Generate report for first user without country
-bads = users['country'].isna()
+bads = users['country_code'].isna()
 if np.any(bads):
     gh_user = users.loc[bads].iloc[0]['gh_user']
     user_report(gh_user, users, browser=True)
 
+
+# Merge by Github user
+merged = users.groupby('gh_user').sum()
+
+# Sort by commits
+merged = merged.sort_values('n_commits', ascending=False)
+print(merged.head(20))
+
+# Merge by Country
+by_country = (users.groupby('country_code').sum().
+              sort_values('n_commits', ascending=False))
+print(by_country.head(20))
+
+# Show UK commits
+uk = (users[users['country_code'] == 'GBR'].
+      groupby('gh_user').sum().
+      sort_values('n_commits', ascending=False))
+print(uk.head(20))
+
+by_country_gdp = by_country.merge(country_data, on='country_code')
+by_country_gdp['commits_per_million'] = (by_country_gdp['n_commits'] /
+                                         by_country_gdp['population'])
+print(by_country_gdp.head(10).sort_values(
+    'commits_per_million',
+    ascending=False))

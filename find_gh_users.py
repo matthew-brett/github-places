@@ -147,8 +147,8 @@ NAME2GH_USER = {
         'Brian Jorgensen': 'b33j0r',
         # From Numpy, Scipy
         "Pearu Peterson": "pearu",
-        # Can't find anything convincing
-        # GH user was siddhanathan, now deleted.
+        # From git log, GH user was siddhanathan, now deleted.
+        # E.g. https://github.com/sympy/sympy/pull/883
         "Siddhanathan Shanmugam": '+siddhanathan_shanmugam',
         # Github page pins Sympy repository
         "Jorn Baayen": 'jbaayen',
@@ -163,6 +163,11 @@ NAME2GH_USER = {
         # One hit for Github user search, but not clear it's the same person;
         # no Sympy clone, works with Julia.
         "Robert Schwarz": "+robert_schwarz",
+        # Mis-labelled as KaTeX-bot by GH information from
+        # commit 3b2b8ef9c1d84075ada028e95c37ba1000a58082
+        # In fact:
+        # https://github.com/sympy/sympy/pull/14443
+        'ylemkimon': 'ylemkimon',
     },
     'cython': {
         # Commit 315efe4ca11f2965dbdc064cad00ee455f1296c9
