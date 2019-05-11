@@ -134,6 +134,10 @@ NAME2GH_USER = {
         # I know Brian; he worked with me on Nipy.
         "brian.hawthorne": '+brian_hawthorne',
     },
+    'pandas': {
+        # Gives 'ghost' user otherwise.
+        'y-p': '+y_p',
+    },
     'sympy': {
         # https://github.com/sympy/sympy/wiki/GSoC-2007-Report-Jason-Gedge:-Geometry
         # https://www.gedge.ca/about.html
@@ -144,7 +148,8 @@ NAME2GH_USER = {
         # From Numpy, Scipy
         "Pearu Peterson": "pearu",
         # Can't find anything convincing
-        "Siddhanathan Shanmugam": None,
+        # GH user was siddhanathan, now deleted.
+        "Siddhanathan Shanmugam": '+siddhanathan_shanmugam',
         # Github page pins Sympy repository
         "Jorn Baayen": 'jbaayen',
         # Two Sanket Agarwals on Github, of which only one has a fork of Sympy

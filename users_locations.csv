@@ -346,7 +346,7 @@ statsmodels,25,Alex Griffing,argriffi@ncsu.edu,alexbrc,"North Carolina, USA",USA
 pandas,3129,Wes McKinney,wesmckinn@gmail.com,wesm,"Nashville, TN",USA
 pandas,3043,jreback,jeff@reback.net,jreback,"NYC, USA",USA
 pandas,1662,Jeff Reback,jeff@reback.net,jreback,"NYC, USA",USA
-pandas,943,y-p,yoval@gmx.com,ghost,N/K,N/K
+pandas,943,y-p,yoval@gmx.com,+y_p,ISR,ISR
 pandas,854,Joris Van den Bossche,jorisvandenbossche@gmail.com,jorisvandenbossche,"Paris, France",FRA
 pandas,630,Chang She,changshe@gmail.com,changhiskhan,"San Francisco, CA",USA
 pandas,607,Phillip Cloud,cpcloud@gmail.com,cpcloud,"New York, NY",USA
@@ -373,33 +373,33 @@ pandas,61,TomAugspurger,thomas-augspurger@uiowa.edu,TomAugspurger,"Des Moines, U
 pandas,61,Simon Hawkins,simonjayhawkins@gmail.com,simonjayhawkins,"Bristol, United Kingdom",GBR
 pandas,58,Mortada Mehyar,mehyar@server.fake,mortada,Los Angeles / Silicon Valley,USA
 pandas,57,h-vetinari,33685575+h-vetinari@users.noreply.github.com,h-vetinari,N/K,N/K
-pandas,55,Chris,cbartak@gmail.com,chris-b1,N/K,N/K
+pandas,55,Chris,cbartak@gmail.com,chris-b1,,
 pandas,54,Thomas Kluyver,takowl@gmail.com,takluyver,UK,GBR
 pandas,54,behzad nouri,behzadnouri@gmail.com,behzadnouri,"New York, NY",USA
 pandas,50,Kevin Sheppard,kevin.sheppard@economics.ox.ac.uk,bashtage,"London, UK",GBR
 pandas,49,Ka Wo Chen,kawoc@tepper.cmu.edu,kawochen,United States,USA
-pandas,43,Kieran O'Mahony,kieranom@gmail.com,Komnomnomnom,,
-pandas,42,Dieter Vandenbussche,dvandenbussche@axioma.com,dieterv77,,
+pandas,43,Kieran O'Mahony,kieranom@gmail.com,Komnomnomnom,IRL,IRL
+pandas,42,Dieter Vandenbussche,dvandenbussche@axioma.com,dieterv77,"Atlanta, USA",USA
 pandas,41,Christopher Whelan,whelan@ugcs.caltech.edu,qwhelan,San Francisco,USA
 pandas,41,Jeremy Schendel,jschendel@users.noreply.github.com,jschendel,"Denver, CO",USA
-pandas,36,Paul Reidy,paul_reidy@outlook.com,reidy-p,,
-pandas,33,Evan Wright,evanpw@gmail.com,evanpw,,
-pandas,32,bwignall,brianwignall@gmail.com,bwignall,,
-pandas,32,alimcmaster1,alimcmaster1@gmail.com,alimcmaster1,,
+pandas,36,Paul Reidy,paul_reidy@outlook.com,reidy-p,"Dublin, IRL",IRL
+pandas,33,Evan Wright,evanpw@gmail.com,evanpw,"New York, USA",USA
+pandas,32,bwignall,brianwignall@gmail.com,bwignall,"New York, USA",USA
+pandas,32,alimcmaster1,alimcmaster1@gmail.com,alimcmaster1,UK,GBR
 pandas,31,Jan Schulz,jasc@gmx.net,jankatins,"Berlin, Germany",DEU
-pandas,31,chris-b1,cbartak@gmail.com,chris-b1,N/K,N/K
+pandas,31,chris-b1,cbartak@gmail.com,chris-b1,,
 pandas,29,Yaroslav Halchenko,debian@onerussian.com,yarikoptic,USA,USA
-pandas,29,immerrr,immerrr@gmail.com,immerrr,,
+pandas,29,immerrr,immerrr@gmail.com,immerrr,Spain,ESP
 pandas,28,David Stephens,dstephens99@gmail.com,davidastephens,"Vancouver, Canada",CAN
-pandas,26,Gábor Lipták,gliptak@gmail.com,gliptak,,
-pandas,25,rockg,grant.roch@gmail.com,rockg,,
+pandas,26,Gábor Lipták,gliptak@gmail.com,gliptak,"Florida, USA",USA
+pandas,25,rockg,grant.roch@gmail.com,rockg,USA,USA
 pandas,25,Stephen Lin,stephenwlin@gmail.com,stephenwlin,"New York, NY",USA
 h5py,940,andrewcollette,andrew.collette@gmail.com,andrewcollette,"Austin, TX",USA
 h5py,233,Andrew Collette,andrew.collette@gmail.com,andrewcollette,"Austin, TX",USA
 h5py,212,Thomas A Caswell,tcaswell@bnl.gov,tacaswell,New York,USA
 h5py,159,James Tocknell,aragilar@gmail.com,aragilar,"Sydney, AUS",AUS
 h5py,89,Thomas Kluyver,thomas@kluyver.me.uk,takluyver,UK,GBR
-h5py,48,Андрей Парамонов,paramon@lims.acdlabs.ru,aparamon,,
+h5py,48,Андрей Парамонов,paramon@lims.acdlabs.ru,aparamon,RUS,RUS
 h5py,47,ddale,dsdale24@gmail.com,ddale,"Ithaca, NY",USA
 cython,8720,Stefan Behnel,stefan_ml@behnel.de,scoder,"München, Germany",DEU
 cython,2691,Robert Bradshaw,robertwb@gmail.com,robertwb,"Seattle, USA",USA
@@ -410,7 +410,7 @@ cython,336,Lisandro Dalcin,dalcinl@gmail.com,dalcinl,Saudi Arabia,SAU
 cython,251,gabrieldemarmiesse,gabrieldemarmiesse@google.com,gabrieldemarmiesse,"Paris, France",FRA
 cython,99,Jeroen Demeyer,jdemeyer@cage.ugent.be,jdemeyer,"Gent, Belgium",BEL
 cython,60,Lars Buitinck,larsmans@gmail.com,larsmans,"Amsterdam, Netherlands",NLD
-cython,54,Kurt Smith,kwsmith1@wisc.edu,kwmsmith,,
+cython,54,Kurt Smith,kwsmith1@wisc.edu,kwmsmith,"Austin, USA",USA
 cython,46,Ian Henriksen,insertinterestingnamehere@gmail.com,insertinterestingnamehere,"Austin, TX",USA
 cython,44,Craig Citro,craigcitro@gmail.com,craigcitro,"Seattle, WA",USA
 cython,37,William Stein,wstein@gmail.com,williamstein,"Seattle, WA",USA
@@ -440,13 +440,13 @@ sympy,351,Øyvind Jensen,jensen.oyvind@gmail.com,jegerjensen,"Lillestrøm, Norwa
 sympy,351,Colin B. Macdonald,cbm@m.fsf.org,cbm755,Canada,CAN
 sympy,344,Oscar Gustafsson,oscar.gustafsson@gmail.com,oscargus,"Linköping, Sweden",SWE
 sympy,320,Sudhanshu Mishra,mrsud94@gmail.com,debugger22,"Mumbai, India",IND
-sympy,313,Tom Bachmann,e_mc_h2@web.de,ness01,,
+sympy,313,Tom Bachmann,e_mc_h2@web.de,ness01,"MIT, USA",USA
 sympy,282,Amit Kumar,dtu.amit@gmail.com,aktech,"London, United Kingdom",GBR
 sympy,278,Mario Pernici,mario.pernici@gmail.com,pernici,"Milano, ITA",ITA
 sympy,260,Sergiu Ivanov,unlimitedscolobb@gmail.com,scolobb,"Saclay, FRA",FRA
 sympy,258,Sachin Joglekar,srjoglekar246@gmail.com,srjoglekar246,"Mountain View, CA",USA
 sympy,240,Arihant Parsoya,parsoyaarihant@gmail.com,parsoyaarihant,"Mumbai, IND",IND
-sympy,235,Leonid Kovalev,leonidvkovalev@gmail.com,normalhuman,,
+sympy,235,Leonid Kovalev,leonidvkovalev@gmail.com,normalhuman,"New York, USA",USA
 sympy,223,Sartaj Singh,singhsartaj94@gmail.com,leosartaj,Bengaluru,IND
 sympy,211,Shubham Tibra,shubh.tibra@gmail.com,shubhamtibra,Kharagpur,IND
 sympy,209,Sidhant Nagpal,sidhantnagpal97@gmail.com,sidhantnagpal,"Dehli, IND",IND
@@ -462,39 +462,39 @@ sympy,174,Stefan Krastanov,krastanov.stefan@gmail.com,Krastanov,"Yale, USA",USA
 sympy,173,Jason Siefken,siefkenj@gmail.com,siefkenj,"Toronto, CAN",CAN
 sympy,170,Szymon Mieszczak,szymon.mieszczak@gmail.com,szymag,Poznan,POL
 sympy,167,Juha Remes,jremes@outlook.com,Newman101,"Manchester, United Kingdom",GBR
-sympy,166,David Li,l33tnerd.li@gmail.com,lidavidm,,
+sympy,166,David Li,l33tnerd.li@gmail.com,lidavidm,"New York, USA",USA
 sympy,161,Brian E. Granger,ellisonbg@gmail.com,ellisonbg,"Los Osos, USA",USA
 sympy,158,Rick Muller,rpmuller@gmail.com,rpmuller,"Albuquerque, USA",USA
 sympy,142,Yathartha Joshi,yathartha32@gmail.com,Yathartha22,"Dwarahat, IND",IND
-sympy,140,ylemkimon,ylemkimon@naver.com,KaTeX-bot,N/K,N/K
-sympy,138,Vinzent Steinberg,vinzent.steinberg@gmail.com,vks,N/K,N/K
-sympy,136,Timothy Reluga,treluga@math.psu.edu,zanzibar7,,
-sympy,134,Gilbert Gede,gilbertgede@gmail.com,gilbertgede,N/K,N/K
-sympy,133,Vladimir Perić,vlada.peric@gmail.com,vperic,N/K,N/K
+sympy,140,ylemkimon,ylemkimon@naver.com,KaTeX-bot,,
+sympy,138,Vinzent Steinberg,vinzent.steinberg@gmail.com,vks,,
+sympy,136,Timothy Reluga,treluga@math.psu.edu,zanzibar7,"Pennsylvania, USA",USA
+sympy,134,Gilbert Gede,gilbertgede@gmail.com,gilbertgede,,
+sympy,133,Vladimir Perić,vlada.peric@gmail.com,vperic,,
 sympy,133,Ashish Kumar Gaurav,ashishkg0022@gmail.com,ashishkg0022,"Kharagpur , India",IND
 sympy,131,Thomas Hisch,t.hisch@gmail.com,thisch,"Vienna, AUT",AUT
-sympy,128,Harsh Gupta,mail@hargup.in,hargup,N/K,N/K
-sympy,127,Raymond Wong,rayman_407@yahoo.com,rwong,,
+sympy,128,Harsh Gupta,mail@hargup.in,hargup,,
+sympy,127,Raymond Wong,rayman_407@yahoo.com,rwong,"Bay Area, USA",USA
 sympy,123,Shivam Vats,shivamvats.iitkgp@gmail.com,shivamvats,"Pittsburgh, US",USA
-sympy,121,Akash Vaish,akash.9712@gmail.com,akash9712,N/K,N/K
+sympy,121,Akash Vaish,akash.9712@gmail.com,akash9712,,
 sympy,119,Fredrik Johansson,fredrik.johansson@gmail.com,fredrik-johansson,"Bordeaux, France",FRA
-sympy,117,Ethan Ward,etkewa@gmail.com,ethankward,N/K,N/K
+sympy,117,Ethan Ward,etkewa@gmail.com,ethankward,,
 sympy,114,Fabian Pedregosa,fabian@fseoane.net,fabianp,Montreal,CAN
 sympy,112,Abdullah Javed Nesar,abduljaved1994@gmail.com,Abdullahjavednesar,Kharagpur,IND
 sympy,111,Bharath M R,catchmrbharath@gmail.com,catchmrbharath,San Diego,USA
-sympy,103,Addison Cugini,ajcugini@gmail.com,addisonc,N/K,N/K
+sympy,103,Addison Cugini,ajcugini@gmail.com,addisonc,,
 sympy,102,Kundan Kumar,kundankumar18581@gmail.com,kundankrmodi,Madison,USA
 sympy,99,Kshitij Saraogi,KshitijSaraogi@gmail.com,kshitij10496,"Kharagpur, India",IND
 sympy,98,Joachim Durchholz,jo@durchholz.org,toolforger,Germany,DEU
 sympy,98,Peter Brady,petertbrady@gmail.com,pbrady,United States,USA
 sympy,95,Manoj Kumar,manojkumarsivaraj334@gmail.com,MechCoder,Mountain View,USA
 sympy,95,Guru Devanla,grdvnl@gmail.com,gdevanla,"Los Angeles, CA",USA
-sympy,94,Adwait Baokar,adwaitbaokar18@gmail.com,abaokar-07,N/K,N/K
+sympy,94,Adwait Baokar,adwaitbaokar18@gmail.com,abaokar-07,,
 sympy,91,Gagandeep Singh,singh.23@iitj.ac.in,czgdp1807,"Jodhpur, India",IND
 sympy,90,Alexey U. Gudchenko,proga@goodok.ru,goodok,Moscow,RUS
-sympy,88,hm,hacman0@gmail.com,hacman,N/K,N/K
+sympy,88,hm,hacman0@gmail.com,hacman,,
 sympy,87,Vishal,vishalg2235@gmail.com,vishalg2235,IIT Kharagpur,IND
-sympy,86,Arif Ahmed,arif.ahmed.5.10.1995@gmail.com,ArifAhmed1995,N/K,N/K
+sympy,86,Arif Ahmed,arif.ahmed.5.10.1995@gmail.com,ArifAhmed1995,,
 sympy,83,Krit Karan,kritkaran.b13@iiits.in,kritkaran94,"Sri-City, Andhra Pradesh",IND
 sympy,81,Priit Laes,plaes@plaes.org,plaes,Estonia,EST
 sympy,80,Isuru Fernando,isuruf@gmail.com,isuruf,"Urbana, IL",USA
@@ -504,62 +504,62 @@ sympy,77,Nikhil Pappu,nkhlpappu@gmail.com,NikhilPappu,"Hyderabad, India",IND
 sympy,77,Matt Habel,habelinc@gmail.com,Habel,"Darnestown, MD",USA
 sympy,76,Avi Shrivastava,shrivastavaavi123@gmail.com,avishrivastava11,"Goa, IND",IND
 sympy,76,Arighna Chakrabarty,arighna.chakrabarty100@gmail.com,ArighnaIITG,"IIT Guwahati, India",IND
-sympy,75,Jogi Miglani,jmig5776@gmail.com,jmig5776,N/K,N/K
-sympy,73,Ritu Raj Singh,RituRajSingh878@gmail.com,RituRajSingh878,N/K,N/K
+sympy,75,Jogi Miglani,jmig5776@gmail.com,jmig5776,,
+sympy,73,Ritu Raj Singh,RituRajSingh878@gmail.com,RituRajSingh878,,
 sympy,73,Alan Bromborsky,abrombo@verizon.net,brombo,"Silver Spring, MD",USA
 sympy,71,Robert Johansson,jrjohansson@gmail.com,jrjohansson,Tokyo,JPN
-sympy,69,Tomo Lazovich,lazovich@gmail.com,lazovich,N/K,N/K
+sympy,69,Tomo Lazovich,lazovich@gmail.com,lazovich,,
 sympy,67,Matt Curry,mattjcurry@gmail.com,mattcurry,"Albuquerque, NM",USA
-sympy,65,Mary Clark,mary.spriteling@gmail.com,meclark256,,
-sympy,64,eward,eward@sunbelt-medical.com,ethankward,N/K,N/K
-sympy,60,Pablo Puente,ppuedom@gmail.com,ppuedom,,
+sympy,65,Mary Clark,mary.spriteling@gmail.com,meclark256,"Carmel, USA",USA
+sympy,64,eward,eward@sunbelt-medical.com,ethankward,,
+sympy,60,Pablo Puente,ppuedom@gmail.com,ppuedom,"Munich, Germany",DEU
 sympy,59,Harold Erbin,harold.erbin@gmail.com,melsophos,France,FRA
-sympy,58,Ravi charan,ravicharan.vsp@gmail.com,RavicharanN,N/K,N/K
-sympy,58,Subhash Saurabh,subhashsaurabh419@gmail.com,Subhash-Saurabh,N/K,N/K
-sympy,57,Divyanshu Thakur,divyanshu@iiitmanipur.ac.in,divyanshu132,N/K,N/K
-sympy,56,Chai Wah Wu,cwwuieee@gmail.com,postvakje,N/K,N/K
-sympy,56,Ramana Venkata,idlike2dream@gmail.com,vramana,N/K,N/K
+sympy,58,Ravi charan,ravicharan.vsp@gmail.com,RavicharanN,,
+sympy,58,Subhash Saurabh,subhashsaurabh419@gmail.com,Subhash-Saurabh,,
+sympy,57,Divyanshu Thakur,divyanshu@iiitmanipur.ac.in,divyanshu132,,
+sympy,56,Chai Wah Wu,cwwuieee@gmail.com,postvakje,,
+sympy,56,Ramana Venkata,idlike2dream@gmail.com,vramana,,
 sympy,55,Jason Gedge,inferno1386@gmail.com,thegedge,Canada,CAN
 sympy,54,Nicholas Bollweg,nick.bollweg@gmail.com,bollwyvl,"Atlanta, GA",USA
-sympy,54,Nick Curtis,nicholas.curtis@uconn.edu,arghdos,N/K,N/K
+sympy,54,Nick Curtis,nicholas.curtis@uconn.edu,arghdos,,
 sympy,54,Christopher Dembia,cld72@cornell.edu,chrisdembia,"Stanford, CA",USA
-sympy,53,Katja Sophie Hotz,katja.sophie.hotz@student.tuwien.ac.at,katjasophie,,
+sympy,53,Katja Sophie Hotz,katja.sophie.hotz@student.tuwien.ac.at,katjasophie,"Wien, AUT",AUT
 sympy,53,Aleksandar Makelov,amakelov@college.harvard.edu,amakelov,"Cambridge, MA",USA
 sympy,52,Supreet Agrawal,supreet11agrawal@gmail.com,supreet11agrawal,IIT Kanpur,IND
 sympy,52,Faisal Riyaz,faisalriyaz011@gmail.com,FrackeR011,"Aligarh , India",IND
 sympy,50,Brian Jorgensen,brian.jorgensen@gmail.com,b33j0r,"Phoenix, USA",USA
 sympy,49,Alkiviadis G. Akritas,akritas@uth.gr,akritas,"Volos, Greece",GRC
 sympy,49,Dhia Kennouche,kendhia@gmail.com,kendhia,istanbul,TUR
-sympy,47,Thomas Baruchel,baruchel@gmx.com,baruchel,,
+sympy,47,Thomas Baruchel,baruchel@gmx.com,baruchel,"Brest, FRA",FRA
 sympy,47,Akshay,akshaynukala95@gmail.com,akshayah3,Goa,IND
 sympy,46,Andy R. Terrel,aterrel@uchicago.edu,aterrel,"Austin, TX",USA
 sympy,44,Grzegorz Świrski,sognat@gmail.com,gswirski,"Kraków, Poland",POL
 sympy,43,Sebastian Krämer,basti.kr@gmail.com,bastikr,Innsbruck,AUT
 sympy,43,Pearu Peterson,pearu.peterson@gmail.com,pearu,Estonia,EST
-sympy,41,Anurag Sharma,anurags92@gmail.com,anurags92,,
-sympy,40,Siddhanathan Shanmugam,siddhanathan@gmail.com,None,,
+sympy,41,Anurag Sharma,anurags92@gmail.com,anurags92,"Bengaluru, India",IND
+sympy,40,Siddhanathan Shanmugam,siddhanathan@gmail.com,+siddhanathan_shanmugam,"Philadelphia, USA",USA
 sympy,40,Toon Verstraelen,Toon.Verstraelen@UGent.be,tovrstra,"Ghent, Belgium",BEL
-sympy,40,Joan Creus,joan.creus.c@gmail.com,jcreus,,
+sympy,40,Joan Creus,joan.creus.c@gmail.com,jcreus,"Stanford, USA",USA
 sympy,40,Rajiv Ranjan Singh,rajivperfect007@gmail.com,iamrajiv,"Bengaluru, India",IND
 sympy,39,Cristóvão Sousa,crisjss@gmail.com,cdsousa,"Coimbra, Portugal",PRT
 sympy,38,Shubham Kumar Jha,skjha832@gmail.com,ShubhamKJha,National Institute of Technology Agartala,IND
-sympy,37,James Brandon Milam,jmilam343@gmail.com,jbm950,,
+sympy,37,James Brandon Milam,jmilam343@gmail.com,jbm950,"Gainesville, USA",USA
 sympy,37,Christian Muise,christian.muise@gmail.com,haz,"Melbourne, Australia",AUS
 sympy,37,Jorn Baayen,jorn.baayen@gmail.com,jbaayen,Amersfoort,NLD
-sympy,36,Sahil Shekhawat,sahilshekhawat01@gmail.com,sahilshekhawat,,
-sympy,36,Jeremias Yehdegho,j.yehdegho@gmail.com,qcoh,,
+sympy,36,Sahil Shekhawat,sahilshekhawat01@gmail.com,sahilshekhawat,IRL,IRL
+sympy,36,Jeremias Yehdegho,j.yehdegho@gmail.com,qcoh,"Wien, AUT",AUT
 sympy,35,Kevin Hunter,hunteke@earlham.edu,hunteke,"Raleigh, NC",USA
 sympy,35,Pragyan Mehrotra,pragyan18168@iiitd.ac.in,pragyanmehrotra,"New Delhi, India",IND
 sympy,35,Riccardo Gori,goriccardo@gmail.com,goriccardo,Italy,ITA
 sympy,35,Thomas Hunt,thomashunt13@gmail.com,twhunt,"East Bay, CA",USA
-sympy,35,Matthew Hoff,mhoff14@gmail.com,ottersmh,,
+sympy,35,Matthew Hoff,mhoff14@gmail.com,ottersmh,"Bay Area, USA",USA
 sympy,35,Tanu Hari Dixit,tokencolour@gmail.com,tokencolour,"Varanasi, India.",IND
 sympy,35,Alexander Hirzel,alex@hirzel.us,alhirzel,"Hancock, MI",USA
-sympy,34,Shipra Banga,bangashipra@gmail.com,shiprabanga,,
-sympy,34,Poom Chiarawongse,eight1911@gmail.com,Eight1911,,
-sympy,33,Shikhar Makhija,shikharmakhija2@gmail.com,Shikhar1998,,
-sympy,33,Meghana Madhyastha,meghana.madhyastha@gmail.com,megh1241,,
-sympy,33,Sagar Bharadwaj,sagarbharadwaj50@gmail.com,SagarB-97,,
+sympy,34,Shipra Banga,bangashipra@gmail.com,shiprabanga,USA,USA
+sympy,34,Poom Chiarawongse,eight1911@gmail.com,Eight1911,"Providence, USA",USA
+sympy,33,Shikhar Makhija,shikharmakhija2@gmail.com,Shikhar1998,"Delhi, India",IND
+sympy,33,Meghana Madhyastha,meghana.madhyastha@gmail.com,megh1241,"Bangalore, IND",IND
+sympy,33,Sagar Bharadwaj,sagarbharadwaj50@gmail.com,SagarB-97,"Bengaluru, IND",IND
 sympy,33,Mohit Chandra,mohit.chandra@research.iiit.ac.in,mohit3011,Hyderabad,IND
 sympy,33,Steve Anton,anxuiz.nx@gmail.com,steveanton,Seattle,USA
 sympy,32,Sanket Agarwal,sanket@sanketagarwal.com,snktagarwal,Kharagpur,IND

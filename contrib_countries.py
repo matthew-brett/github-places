@@ -287,7 +287,7 @@ GH_USER2LOCATION = {
     'maheshakya': 'Utah, USA',
     # UTC-6.  Maybe
     # https://wearerivet.com/about-us/
-    'chris-b1': 'N/K',
+    'chris-b1': None,
     # https://pietrobattiston.it/Curriculum_Vitae_en.pdf
     'toobaz': 'Trento, Italy',
     # https://en.wikipedia.org/wiki/Lord_Vetinari
@@ -309,6 +309,7 @@ GH_USER2LOCATION = {
     # Sure enough:
     # http://thecollege.syr.edu/people/faculty/pages/math/kovalev-leonid.html
     # Dr Leonid V. Kovalev (drvlk)
+    'normalhuman': 'New York, USA',
     'drlvk': 'New York, USA',
     # https://sidhantnagpal.com/
     'sidhantnagpal': 'Dehli, IND',
@@ -338,47 +339,47 @@ GH_USER2LOCATION = {
     # https://yathartha22.github.io/about
     'Yathartha22': 'Dwarahat, IND',
     #
-    'KaTeX-bot': 'N/K',
+    'KaTeX-bot': None,
     #
-    'vks': 'N/K',
+    'vks': None,
     #
-    'gilbertgede': 'N/K',
+    'gilbertgede': None,
     #
-    'vperic': 'N/K',
+    'vperic': None,
     #
-    'hargup': 'N/K',
+    'hargup': None,
     #
-    'akash9712': 'N/K',
+    'akash9712': None,
     #
-    'ethankward': 'N/K',
+    'ethankward': None,
     #
-    'addisonc': 'N/K',
+    'addisonc': None,
     #
-    'abaokar-07': 'N/K',
+    'abaokar-07': None,
     #
-    'hacman': 'N/K',
+    'hacman': None,
     #
-    'ArifAhmed1995': 'N/K',
+    'ArifAhmed1995': None,
     # avishrivastava11.github.io
     'avishrivastava11': 'Goa, IND',
     #
-    'jmig5776': 'N/K',
+    'jmig5776': None,
     #
-    'RituRajSingh878': 'N/K',
+    'RituRajSingh878': None,
     #
-    'lazovich': 'N/K',
+    'lazovich': None,
     #
-    'RavicharanN': 'N/K',
+    'RavicharanN': None,
     #
-    'Subhash-Saurabh': 'N/K',
+    'Subhash-Saurabh': None,
     #
-    'divyanshu132': 'N/K',
+    'divyanshu132': None,
     #
-    'postvakje': 'N/K',
+    'postvakje': None,
     #
-    'vramana': 'N/K',
+    'vramana': None,
     #
-    'arghdos': 'N/K',
+    'arghdos': None,
     # https://www.linkedin.com/in/briangregoryjorgensen
     # Same photo as github
     'b33j0r': 'Phoenix, USA',
@@ -503,9 +504,158 @@ GH_USER2LOCATION = {
     # https://www.wits.ac.za/staff/academic-a-z-listing/v/terencevanzylwitsacza/
     # https://www.linkedin.com/in/terence-van-zyl-b9b00b4
     'tvanzyl': 'Johannesburg, ZAF',
-    # 943 commits to Pandas, Github account deleted.  Email yoval@gmx.com
-    # Github username y-p.  TZ +3+2-8-7.
-    'ghost': 'N/K',
+    # 943 commits to Pandas, Github account deleted.
+    # Github username was y-p.  Email yoval@gmx.com
+    # TZ ('UTC+03:00', 230), ('UTC+02:00', 555), ('UTC-08:00', 97),
+    # ('UTC-07:00', 61).  Main time zones compatible with Isreal.
+    # https://groups.google.com/forum/#!topic/hasadna11/yDqHhK5FiOo has Yoval P
+    # writing in Hebrew.
+    '+y_p': 'ISR',
+    # Maybe:
+    # https://www.linkedin.com/in/kieran-o-mahony-661759132
+    # C++ and Python listed as skills.  Main project on GH page
+    # is https://github.com/Komnomnomnom/swigibpy, Python API for C++ API.
+    # Timezones (('UTC+01:00', 15), ('UTC+10:00', 19), ('UTC', 2),
+    # ('UTC+11:00', 5), ('UTC-04:00', 2)); could be UK or Ireland with visits
+    # to Australia.
+    'Komnomnomnom': 'IRL',
+    # Name Dieter Vandenbussche, email dvandenbussche@axioma.com leads to
+    # https://www.linkedin.com/in/dieter-vandenbussche-b1b9a84/
+    'dieterv77': 'Atlanta, USA',
+    # GH page bio is "Dublin, Ireland"
+    'reidy-p': 'Dublin, IRL',
+    # Name Evan Wright, email name "evanpw"
+    # Probably https://www.linkedin.com/in/evan-wright-01799341/
+    # Lists Python and C++ skills, matching GH page, including C++
+    # compiler.  Links to now-dead page math.sunysb.edu/~evanpw
+    'evanpw': 'New York, USA',
+    # Lists employer as Two Sigma Investments
+    # https://en.wikipedia.org/wiki/Two_Sigma
+    'bwignall': 'New York, USA',
+    # GH bio is "Python/Java Developer, 23, UK"
+    'alimcmaster1': 'UK',
+    # http://gsoc2016.scrapinghub.com/mentors links GH user immerrr to
+    # name Denis Shpektorov, leading to:
+    # https://www.linkedin.com/in/dshpektorov/
+    # This fits with Scrapinghub employment and Lua experience.
+    'immerrr': 'Spain',
+    # GH pages contact lists Florida, USA
+    # Probably https://www.linkedin.com/in/gaborliptak
+    'gliptak': 'Florida, USA',
+    # Grant Roch
+    # Google search reference to a John's Hopkins tennis
+    # player, and name-address websites listing a Grant F Roch in Baltimore.
+    # Zoominfo gets a Johns Hopkins table tennis person, and claims that a
+    # Grant Roch works at Hartree Partners LP.
+    # Whitepages lists the Baltimore Roch, and another in Wisconsin, with some
+    # of the same names of relatives.
+    # Google scholar search author:"Grant Roch" gives one paper
+    # "Roch, Grant Francis. "Numerical Solutions of Electricity Market
+    # Equilibrium and Collusion Models with AMPL and MATLAB." PhD diss., Johns
+    # Hopkins University, 2004."
+    # Maybe relevant:
+    # http://gradsusr.org/pipermail/gradsusr/2008-March/006596.html
+    # Timezones: (('UTC-04:00', 10), ('UTC-05:00', 10), ('UTC-08:00', 5))
+    'rockg': 'USA',
+    # Log email ends acdlabs.ru.  Leads to "ACD Moscow intranet"
+    # Workplace listed as ACD/Labs
+    'aparamon': 'RUS',
+    # Emails at Enthought and wisc.edu.  Author of Cython book.
+    # https://www.linkedin.com/in/kwmsmith/
+    'kwmsmith': 'Austin, USA',
+    # Tom Bachmann is German, but he was a student at Cambridge UK when he did
+    # most of his Sympy work.  Now he's at MIT: http://tom-bachmann.com/
+    'ness01': 'MIT, USA',
+    # Linked from GH page: https://www.lidavidm.me/blog/about
+    'lidavidm': 'New York, USA',
+    # Git logs: Timothy Reluga, treluga@math.psu.edu
+    # http://bio.psu.edu/directory/tcr2
+    'zanzibar7': 'Pennsylvania, USA',
+    # Sympy contributions in quantum computing
+    # Search for Raymond Wong quantum computing reaches
+    # https://www.cs.ucsb.edu/news/events/phd-proposal-raymond-wong-techniques-improving-resource-usage-quantum-circuits
+    # and then: https://www.linkedin.com/in/raymond-wong-68aa5a28/
+    # listing Python as a skill.
+    # Timezones: (('UTC-08:00', 82), ('UTC-07:00', 45))
+    'rwong': 'Bay Area, USA',
+    # Mary Clark
+    # https://github.com/sympy/sympy/wiki/GSOC-Report-2013-Mary-Clark:-Lie-Algebras
+    # Leading to: https://www.linkedin.com/in/mary-clark-76406783/
+    # with same picture as GH Page.  Working for Wolfram.
+    'meclark256': 'Carmel, USA',
+    # Maybe https://www.linkedin.com/in/pabpue
+    # Name is Pablo Puente, Gmail name is pabpuedom suggesting
+    # Pablo Puente Dominguez.  Search for "Pablo Puente Dominguez" leads to
+    # programming competitor:
+    # https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_authorstats&userid=2001008
+    # LinkedIn site mentions various programming contests.
+    # Timezones: (('UTC+02:00', 45), ('UTC+01:00', 15))
+    'ppuedom': 'Munich, Germany',
+    # Top hit for Katja Sophie Hotz is
+    # https://github.com/sympy/sympy/wiki/GSoC-2013-Application-Katja-Sophie-Hotz:-Faster-Algorithms-for-Polynomials-over-Algebraic-Number-Fields
+    # I can't find anything relevant that is more recent, even with:
+    # "Katja Sophie" (maths OR mathematics OR math)
+    'katjasophie': 'Wien, AUT',
+    # GH pages has.
+    # "Thomas Baruchel, who is a french teacher in Philosophy and in Computer
+    # science". Search for "Thomas Barachel" leads to:
+    # https://twitter.com/baruchel also French teacher of philosophy, location
+    # "Brest, France".
+    'baruchel': 'Brest, FRA',
+    # GH pages leads to http://anurags92.github.io/about
+    'anurags92': 'Bengaluru, India',
+    # Siddhanathan Shanmugam
+    # GH user was siddhanathan, now deleted.  Last contribution was in 2012.
+    # Nothing useful at archive.org
+    # There's a student of the same name at Drexel:
+    # https://dl.acm.org/citation.cfm?id=3122950
+    # Another page suggests that this is GH user siddhanathan
+    # https://icfp17.sigplan.org/profile/siddhanathanshanmugam
+    # Timezones (('UTC+05:30', 40),)
+    '+siddhanathan_shanmugam': 'Philadelphia, USA',
+    # stanford.edu email, org given as "Stanford Physics/CS 2019"
+    'jcreus': 'Stanford, USA',
+    # Last commit 2016.
+    # https://github.com/mon95/sympy/wiki/GSoC-2016-Application-James-Brandon-Milam:-Base-Class-and-Increased-Efficiency-for-Equation-of-Motion-Generators
+    # At the time "University of Florida, Gainesville, Masters in Mechanical
+    # Engineering" - therefore:
+    # https://www.linkedin.com/in/jamesbmilam
+    'jbm950': 'Gainesville, USA',
+    # Bio says "SRE@Google", therefore:
+    # https://www.linkedin.com/in/sahilshekhawat
+    # Site reliability engineer, GSoC for PyDy, location "Ireland".
+    # Timezones (('UTC+05:30', 36),)
+    'sahilshekhawat': 'IRL',
+    # GH pages about: "software engineer working in Vienna, Austria"
+    'qcoh': 'Wien, AUT',
+    # Last commit Sympy in 2013, email at calpoly.edu, presumably related to
+    # https://digitalcommons.calpoly.edu/physsp/73/
+    # Leads to: https://www.linkedin.com/in/matthewchoff
+    # Credit risk analytics consultant at Wells Fargo
+    'ottersmh': 'Bay Area, USA',
+    # Last Sympy commit in 2013
+    # https://github.com/gxyd/sympy/wiki/GSoC-2014-Application-Shipra-Banga-Building-the-New-Assumptions-Module
+    # then at IIT Hyderabad, later working at Google.
+    # https://ghcischedule.anitab.org/blog/speaker/shipra-banga/
+    # Most recent Github commit in https://github.com/shiprabanga/writing-synthesis
+    # Author: Shipra Banga <shiprab@shiprab-macbookpro2.roam.corp.google.com>
+    # Date:   Fri Feb 15 02:51:58 2019 -0800
+    # Assume she's in California now.
+    'shiprabanga': 'USA',
+    # https://eight1911.github.io links back to GH user page.
+    'Eight1911': 'Providence, USA',
+    # https://www.linkedin.com/in/shikhar-makhija-5b436087
+    # is first of two hits on LinkedIn, and lists sketching, Python, algorithms
+    # as top three skills. Location North West Delhi, Delhi, India.
+    # Timezones: (('UTC+05:30', 33),)
+    'Shikhar1998': 'Delhi, India',
+    # GH pages about "I am a fifth year Integrated MTech student at
+    # International Institute of Information Technology, Bangalore"
+    # Affiliation on this paper implies she's still there:
+    # https://arxiv.org/pdf/1811.12640v2.pdf
+    'megh1241': 'Bangalore, IND',
+    # GH pages links to CV, links to https://www.linkedin.com/in/sagar-bharadwaj-k-s/
+    'SagarB-97': 'Bengaluru, IND',
     # UTC-4.  Google search for Dustin Gadal gives:
     # https://www.ic.gc.ca/app/scr/cc/CorporationsCanada/fdrlCrpDtls.html?corpId=9727019
     # giving Elseware Inc, based in Ontario.
@@ -768,6 +918,9 @@ REPO_GETTER = RepoGetter()
 
 
 def user_report(gh_user, user_df, browser=False):
+    if gh_user is None or gh_user.startswith('+'):
+        print(f'Invalid gh_user {gh_user}')
+        return
     user_data = FieldDict()
     gh_data = USER_GETTER(gh_user)
     if gh_data:
@@ -847,7 +1000,7 @@ class UserGetter:
         return self._cache[gh_user]
 
     def _get_gh_user(self, gh_user):
-        if gh_user.startswith('+') or gh_user in ('ghost', 'None'):
+        if gh_user.startswith('+') or gh_user in ('None',):
             return None
         return self._GH.user(gh_user).as_dict()
 
@@ -875,14 +1028,17 @@ def gh_user2country(gh_user):
     return country
 
 
-users = pd.read_csv('gh_user_map_c45dec6.csv')
+short_sha = 'ed3dcdf'
+users = pd.read_csv(f'gh_user_map_{short_sha}.csv')
 users['location'] = users['gh_user'].apply(gh_user2location)
 users['country'] = users['gh_user'].apply(gh_user2country)
 
 users.to_csv('users_locations.csv', index=False)
 USER_GETTER.save_cache()
 
-# Shortcut report for last user without country
+# Generate report for first user without country
 bads = users['country'].isna()
-gh_user = users.loc[bads].iloc[0]['gh_user']
-user_report(gh_user, users, browser=True)
+if np.any(bads):
+    gh_user = users.loc[bads].iloc[0]['gh_user']
+    user_report(gh_user, users, browser=True)
+
