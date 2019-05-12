@@ -26,18 +26,6 @@ names with semi-colons. It's not clear what the license is, but I will assume, u
 someone tells me otherwise, that the data are public domain, and can be
 distributed freely.
 
-`state_table.csv` is a download via <https://statetable.com> with thanks.  Here's a quote from the site:
-
-> I make no guarantees this site or its data are accurate. I'll do my best, but
-> don't sic your legal staff on me when the US decides it doesn't want Kingman
-> Reef anymore. Also, I can't guarantee any uptime, and I certainly can't
-> guarantee the site will be up tomorrow. Don't base your business around this
-> site, but feel free to make use of it while it's here.
-
-Again, I assume this data is effectively
-[CC-BY](https://creativecommons.org/licenses/by/4.0/); please attribute the
-data to <https://statetable.com> if you re-use it.
-
 I downloaded `gdp_per_capita.csv` from [The World Bank GDP per capita data inferface](https://data.worldbank.org/indicator/NY.GDP.PCAP.CD).  The World Bank licenses the data under CC-By 4.0; like me, you can redistribute the data freely, as long as you acknowledge its source from the World Bank data site above.
 
 `pop_surface.csv` comes from <http://data.un.org>.  Specifically, it is
