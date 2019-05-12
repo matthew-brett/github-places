@@ -37,3 +37,13 @@ distributed freely.
 Again, I assume this data is effectively
 [CC-BY](https://creativecommons.org/licenses/by/4.0/); please attribute the
 data to <https://statetable.com> if you re-use it.
+
+I downloaded `gdp_per_capita.csv` from [The World Bank GDP per capita data inferface](https://data.worldbank.org/indicator/NY.GDP.PCAP.CD).  The World Bank licenses the data under CC-By 4.0; like me, you can redistribute the data freely, as long as you acknowledge its source from the World Bank data site above.
+
+`pop_surface.csv` comes from <http://data.un.org>.  Specifically, it is
+a copy of the [population, surface area and
+density](http://data.un.org/_Docs/SYB/CSV/SYB61_T02_Population,%20Surface%20Area%20and%20Density.csv)
+data table. The [terms of
+use](http://data.un.org/Host.aspx?Content=UNdataUse) also allow you to
+redistribute the data, but require you to give attribution to its
+source, as I have in the links above.

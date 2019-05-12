@@ -14,41 +14,45 @@ import pandas as pd
 
 from gputils import GH, lupdate, Repo, gh_user2ev_emails
 
-""" The standard list of countries from the [UN statistics division
-website](https://unstats.un.org/unsd/methodology/m49/overview).
-"""
+# See LICENSE.md for the license to the data files I am using here.
 
+# Standard list of countries from the UN statistics division
+# website: https://unstats.un.org/unsd/methodology/m49/overview
 un_countries = pd.read_csv('un_stats_division_countries.csv')
 un_countries = un_countries[['Country or Area', 'ISO-alpha3 Code']]
 un_countries.columns = ['country_name', 'country_code']
 # Fix UK country name
 un_countries.at[un_countries['country_code'] == 'GBR', 'country_name'] = 'United Kingdom' 
-country_names = un_countries['country_name']
-country_codes = un_countries['country_code']
+
+# Variables as shortcuts
+COUNTRY_NAMES = un_countries['country_name']
+COUNTRY_CODES = un_countries['country_code']
 
 # Read World bank GDP data, as downloaded from
-# https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=US
+# https://data.worldbank.org/indicator/NY.GDP.PCAP.CD
+# License is CC-BY 4.0
 gdp_per_cap = pd.read_csv('gdp_per_capita.csv', header=2)
 gdp_per_cap = gdp_per_cap[['Country Code', '2017']]
 gdp_per_cap.columns = ['country_code', 'gdp_per_cap']
 
-# As downloaded from http://data.un.org/
-pop_data = pd.read_csv('pop_surface.csv', header=1, encoding='latin1')
+# Population and other attributes of countries as downloaded from
+# http://data.un.org/
+pop_data = pd.read_csv('pop_surface.csv',
+                       header=1,
+                       thousands=',',
+                       encoding='latin1')
+# Get estimated mid-year population for 2018.
 pop_2018 = pop_data[
     (pop_data['Year'] == 2018) &
     (pop_data['Series'] == 'Population mid-year estimates (millions)')]
 pop_2018 = pop_2018[['Unnamed: 1', 'Value']]
 pop_2018.columns = ['country_name', 'population']
-pop_2018['population'] = pop_2018['population'].apply(
-    lambda x: x.replace(',','')).astype(float)
+
+# Merge all three country information tables into one.
 country_data = un_countries.merge(pop_2018,
                                   on='country_name')
 country_data = country_data.merge(gdp_per_cap,
                                   on='country_code')
-
-""" Standard list of states in US and Canada
-"""
-na_states = pd.read_csv('state_table.csv')
 
 # Locations for Github users where location string is not useful or absent.
 # Data from web-stalking.
@@ -771,7 +775,6 @@ EXTRA_COUNTRIES = {
 }
 
 
-
 # Regular expressions to apply to location string, resulting in 3-letter ISO
 # country code.
 def tw(word):
@@ -873,11 +876,158 @@ COUNTRY_REGEXPS = (
 )
 
 
+def location2countrish(location):
+    """ Get last word as first guess at country from location string
+    """
+    if ';' in location:
+        last = location.split(';')[-1]
+    else:
+        last = [p for p in location.split(',')][-1]
+    last = last.strip()
+    if last.endswith('.'):
+        last = last[:-1]
+    return last
+
+
+def location2country(location):
+    """ Estimate country from location string
+    """
+    if location is None:
+        return None
+    for reg, country in COUNTRY_REGEXPS:
+        if re.search(reg, location):
+            return country
+    country = location2countrish(location)
+    if country == 'N/K':
+        return country
+    found = find_country(country)
+    if found:
+        return found
+
+
+def find_country(candidate):
+    """ Estimate country from `candidate` string
+    """
+    is_iso = COUNTRY_CODES == candidate
+    if np.any(is_iso):
+        return COUNTRY_CODES.loc[is_iso].item()
+    is_country = COUNTRY_NAMES == candidate
+    if np.any(is_country):
+        return COUNTRY_CODES.loc[is_country].item()
+    if candidate in EXTRA_COUNTRIES:
+        return EXTRA_COUNTRIES[candidate]
+
+
+def gh_user2location(gh_user):
+    """ Return location string for Github user specified in `gh_user`
+
+    First check GH_USER2LOCATION dictionary, where we specify a location string
+    by hand, for given Github user strings; otherwise return the location
+    string from the user's Github profile.
+    """
+    if gh_user in GH_USER2LOCATION:
+        return GH_USER2LOCATION[gh_user]
+    user_data = USER_GETTER(gh_user)
+    if user_data:
+        return user_data['location']
+
+
+def gh_user2country(gh_user):
+    """ Return estimate of country for `gh_user`
+
+    Get location string, and process to estimate country for location string.
+    """
+    location = gh_user2location(gh_user)
+    if location is None:
+        print(f'{gh_user} has no location')
+        return
+    country = location2country(location)
+    if country is None:
+        print(f'{gh_user} has location {location} but no country')
+        return
+    return country
+
+
+class RepoGetter:
+    """ Cache and return read data for repositories
+    """
+
+    def __init__(self):
+        self._rcache = {}
+        self._ccache = {}
+
+    def get_repo(self, repo_name):
+        if repo_name not in self._rcache:
+            self._rcache[repo_name] = Repo(repo_name)
+        return self._rcache[repo_name]
+
+    def get_contributors(self, repo_name):
+        repo = self.get_repo(repo_name)
+        if repo_name not in self._ccache:
+            self._ccache[repo_name] = repo.contributors()
+        return self._ccache[repo_name]
+
+
+REPO_GETTER = RepoGetter()
+
+
+class UserGetter:
+    """ Cache and return Github user data
+    """
+
+    def __init__(self, cache_fname=None):
+        self._GH = GH
+        self.cache_fname = cache_fname
+        if cache_fname:
+            self.load_cache()
+        else:
+            self.clear_cache()
+
+    def load_cache(self):
+        if self.cache_fname is None:
+            raise ValueError('No cache_fname to load from')
+        if not exists(self.cache_fname):
+            self._cache = {}
+            return
+        with open(self.cache_fname, 'rt') as fobj:
+            self._cache = json.load(fobj)
+
+    def save_cache(self):
+        if self.cache_fname is None:
+            raise ValueError('No cache_fname to save to')
+        with open(self.cache_fname, 'wt') as fobj:
+            json.dump(self._cache, fobj)
+
+    def clear_cache(self):
+        self._cache = {}
+
+    def __call__(self, gh_user):
+        if gh_user not in self._cache:
+            self._cache[gh_user] = self._get_gh_user(gh_user)
+        return self._cache[gh_user]
+
+    def _get_gh_user(self, gh_user):
+        if gh_user.startswith('+') or gh_user in ('None',):
+            return None
+        return self._GH.user(gh_user).as_dict()
+
+
+USER_GETTER = UserGetter('.user_cache.json')
+
+
+# Make reporting user data prettier with custom dictionary.
+
 def get_fields(obj):
+    """ Get 'fields' attribute if present, otherwise return empty tuple
+
+    Allows FieldDict below to process non-FieldDict dictionaries.
+    """
     return getattr(obj, 'fields', ())
 
 
 class FieldDict(dict):
+    """ Dictionary specifying standard fields, always present and same order
+    """
 
     fields = (
         'login',
@@ -922,62 +1072,12 @@ class FieldDict(dict):
         return '\n'.join(lines)
 
 
-def location2countrish(location):
-    if ';' in location:
-        return location.split(';')[-1].strip()
-    last = [p.strip() for p in location.split(',')][-1]
-    if last.endswith('.'):
-        last = last[:-1]
-    return last
-
-
-def location2country(location):
-    if location is None:
-        return None
-    for reg, country in COUNTRY_REGEXPS:
-        if re.search(reg, location):
-            return country
-    country = location2countrish(location)
-    if country == 'N/K':
-        return country
-    found = find_country(country)
-    if found:
-        return found
-
-
-def find_country(candidate):
-    is_iso = country_codes == candidate
-    if np.any(is_iso):
-        return country_codes.loc[is_iso].item()
-    is_country = country_names == candidate
-    if np.any(is_country):
-        return country_codes.loc[is_country].item()
-    if candidate in EXTRA_COUNTRIES:
-        return EXTRA_COUNTRIES[candidate]
-
-
-class RepoGetter:
-
-    def __init__(self):
-        self._rcache = {}
-        self._ccache = {}
-
-    def get_repo(self, repo_name):
-        if repo_name not in self._rcache:
-            self._rcache[repo_name] = Repo(repo_name)
-        return self._rcache[repo_name]
-
-    def get_contributors(self, repo_name):
-        repo = self.get_repo(repo_name)
-        if repo_name not in self._ccache:
-            self._ccache[repo_name] = repo.contributors()
-        return self._ccache[repo_name]
-
-
-REPO_GETTER = RepoGetter()
-
-
 def user_report(gh_user, user_df, browser=False):
+    """ Report available data for `gh_user`, maybe open relevant pages
+
+    Prints information to console.  If `browser==True` then open the user's
+    Github page in the browser, and any detected Github Pages site.
+    """
     if gh_user is None or gh_user.startswith('+'):
         print(f'Invalid gh_user {gh_user}')
         return
@@ -1026,84 +1126,30 @@ def user_report(gh_user, user_df, browser=False):
             check_call(['open', 'https:' + gh_pages[0]])
 
 
-class UserGetter:
-
-    def __init__(self, cache_fname=None):
-        self._GH = GH
-        self.cache_fname = cache_fname
-        if cache_fname:
-            self.load_cache()
-        else:
-            self.clear_cache()
-
-    def load_cache(self):
-        if self.cache_fname is None:
-            raise ValueError('No cache_fname to load from')
-        if not exists(self.cache_fname):
-            self._cache = {}
-            return
-        with open(self.cache_fname, 'rt') as fobj:
-            self._cache = json.load(fobj)
-
-    def save_cache(self):
-        if self.cache_fname is None:
-            raise ValueError('No cache_fname to save to')
-        with open(self.cache_fname, 'wt') as fobj:
-            json.dump(self._cache, fobj)
-
-    def clear_cache(self):
-        self._cache = {}
-
-    def __call__(self, gh_user):
-        if gh_user not in self._cache:
-            self._cache[gh_user] = self._get_gh_user(gh_user)
-        return self._cache[gh_user]
-
-    def _get_gh_user(self, gh_user):
-        if gh_user.startswith('+') or gh_user in ('None',):
-            return None
-        return self._GH.user(gh_user).as_dict()
-
-
-USER_GETTER = UserGetter('.user_cache.json')
-
-
-def gh_user2location(gh_user):
-    if gh_user in GH_USER2LOCATION:
-        return GH_USER2LOCATION[gh_user]
-    user_data = USER_GETTER(gh_user)
-    if user_data:
-        return user_data['location']
-
-
-def gh_user2country(gh_user):
-    location = gh_user2location(gh_user)
-    if location is None:
-        print(f'{gh_user} has no location')
-        return
-    country = location2country(location)
-    if country is None:
-        print(f'{gh_user} has location {location} but no country')
-        return
-    return country
-
-
+# Read estimated Github usernames and other user data.
 short_sha = '8d745da'
 users = pd.read_csv(f'gh_user_map_{short_sha}.csv')
+
+# Get location from manual input, or from Github user profiles.
 users['location'] = users['gh_user'].apply(gh_user2location)
+# Estimate country from the location data.  The function will print helpful
+# information for missing locations or invalid countries.
 users['country_code'] = users['gh_user'].apply(gh_user2country)
 
+# Write country data to CSV
 users.to_csv('users_locations.csv', index=False)
+# Save cached Github user data, to save Github queries.
 USER_GETTER.save_cache()
 
 # Generate report for first user without country
+# This allows me to re-run the file from IPython, to review date for users with
+# missing countries, and edit the GH_USER2LOCATION data.
 bads = users['country_code'].isna()
 if np.any(bads):
     gh_user = users.loc[bads].iloc[0]['gh_user']
     user_report(gh_user, users, browser=True)
 
-
-# Merge by Github user
+# Merge by Github useV
 merged = users.groupby('gh_user').sum()
 
 # Sort by commits
