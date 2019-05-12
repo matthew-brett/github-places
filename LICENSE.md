@@ -47,3 +47,5 @@ data table. The [terms of
 use](http://data.un.org/Host.aspx?Content=UNdataUse) also allow you to
 redistribute the data, but require you to give attribution to its
 source, as I have in the links above.
+
+`country_data.csv` is the result of running `process_countries.py` on the CSV files above, to produce a merged data set.  As a derivative, you should cite the UN and the World Bank as data sources.

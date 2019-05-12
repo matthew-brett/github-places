@@ -14,45 +14,13 @@ import pandas as pd
 
 from gputils import GH, lupdate, Repo, gh_user2ev_emails
 
-# See LICENSE.md for the license to the data files I am using here.
-
-# Standard list of countries from the UN statistics division
-# website: https://unstats.un.org/unsd/methodology/m49/overview
-un_countries = pd.read_csv('un_stats_division_countries.csv')
-un_countries = un_countries[['Country or Area', 'ISO-alpha3 Code']]
-un_countries.columns = ['country_name', 'country_code']
-# Fix UK country name
-un_countries.at[un_countries['country_code'] == 'GBR', 'country_name'] = 'United Kingdom' 
+# Country data from various sources.  See process_countries.py
+country_data = pd.read_csv('country_data.csv')
 
 # Variables as shortcuts
-COUNTRY_NAMES = un_countries['country_name']
-COUNTRY_CODES = un_countries['country_code']
+COUNTRY_NAMES = country_data['country_name']
+COUNTRY_CODES = country_data['country_code']
 
-# Read World bank GDP data, as downloaded from
-# https://data.worldbank.org/indicator/NY.GDP.PCAP.CD
-# License is CC-BY 4.0
-gdp_per_cap = pd.read_csv('gdp_per_capita.csv', header=2)
-gdp_per_cap = gdp_per_cap[['Country Code', '2017']]
-gdp_per_cap.columns = ['country_code', 'gdp_per_cap']
-
-# Population and other attributes of countries as downloaded from
-# http://data.un.org/
-pop_data = pd.read_csv('pop_surface.csv',
-                       header=1,
-                       thousands=',',
-                       encoding='latin1')
-# Get estimated mid-year population for 2018.
-pop_2018 = pop_data[
-    (pop_data['Year'] == 2018) &
-    (pop_data['Series'] == 'Population mid-year estimates (millions)')]
-pop_2018 = pop_2018[['Unnamed: 1', 'Value']]
-pop_2018.columns = ['country_name', 'population']
-
-# Merge all three country information tables into one.
-country_data = un_countries.merge(pop_2018,
-                                  on='country_name')
-country_data = country_data.merge(gdp_per_cap,
-                                  on='country_code')
 
 # Locations for Github users where location string is not useful or absent.
 # Data from web-stalking.
@@ -1148,28 +1116,3 @@ bads = users['country_code'].isna()
 if np.any(bads):
     gh_user = users.loc[bads].iloc[0]['gh_user']
     user_report(gh_user, users, browser=True)
-
-# Merge by Github useV
-merged = users.groupby('gh_user').sum()
-
-# Sort by commits
-merged = merged.sort_values('n_commits', ascending=False)
-print(merged.head(20))
-
-# Merge by Country
-by_country = (users.groupby('country_code').sum().
-              sort_values('n_commits', ascending=False))
-print(by_country.head(20))
-
-# Show UK commits
-uk = (users[users['country_code'] == 'GBR'].
-      groupby('gh_user').sum().
-      sort_values('n_commits', ascending=False))
-print(uk.head(20))
-
-by_country_gdp = by_country.merge(country_data, on='country_code')
-by_country_gdp['commits_per_million'] = (by_country_gdp['n_commits'] /
-                                         by_country_gdp['population'])
-print(by_country_gdp.head(10).sort_values(
-    'commits_per_million',
-    ascending=False))
