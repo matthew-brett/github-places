@@ -1,11 +1,11 @@
 """ Utilities for github places processing.
 """
 
-from os.path import abspath
+from os.path import abspath, exists
 import requests
 import json
 import re
-from subprocess import check_output, PIPE
+from subprocess import check_output, PIPE, CalledProcessError
 from collections import namedtuple, OrderedDict, Counter
 from datetime import datetime
 
@@ -346,3 +346,16 @@ def get_sha7(sha='HEAD', cwd=None):
                         stderr=PIPE,
                         cwd=cwd,
                         text=True).strip()
+
+
+def get_last_gh_users():
+    start_at = 'HEAD'
+    while True:
+        try:
+            sha = get_sha7(start_at)
+        except CalledProcessError:
+            return None
+        fname = f'gh_user_map_{sha}.csv'
+        if exists(fname):
+            return fname
+        start_at = sha + '^'

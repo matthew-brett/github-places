@@ -4,12 +4,11 @@ See the `guess_gh_user` method of :class:`RepoContributor` for the algorithm.
 """
 
 from argparse import ArgumentParser
-from os.path import exists
-from subprocess import CalledProcessError
 
 import pandas as pd
 
-from gputils import Repo, REPO2ORG, merge_dicts, update_subdicts, get_sha7
+from gputils import (Repo, REPO2ORG, merge_dicts, update_subdicts, get_sha7,
+                     get_last_gh_users)
 
 DEFAULT_MIN_COMMITS=25
 
@@ -240,19 +239,6 @@ def df2gh_map(df):
             mapping[repo_name] = {}
         mapping[repo_name][name] = gh_user
     return mapping
-
-
-def get_last_gh_users():
-    start_at = 'HEAD'
-    while True:
-        try:
-            sha = get_sha7(start_at)
-        except CalledProcessError:
-            return None
-        fname = f'gh_user_map_{sha}.csv'
-        if exists(fname):
-            return fname
-        start_at += '^'
 
 
 def main():

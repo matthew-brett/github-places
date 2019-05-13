@@ -12,7 +12,7 @@ import numpy as np
 
 import pandas as pd
 
-from gputils import GH, lupdate, Repo, gh_user2ev_emails, get_sha7
+from gputils import (GH, lupdate, Repo, gh_user2ev_emails, get_last_gh_users)
 
 # Country data from various sources.  See process_countries.py
 country_data = pd.read_csv('country_data.csv')
@@ -866,7 +866,7 @@ def location2country(location):
         if re.search(reg, location):
             return country
     country = location2countrish(location)
-    if country == 'N/K':
+    if country in ('N/K', 'N/A'):
         return country
     found = find_country(country)
     if found:
@@ -1095,7 +1095,7 @@ def user_report(gh_user, user_df, browser=False):
 
 
 # Read estimated Github usernames and other user data.
-users = pd.read_csv(f'gh_user_map_{get_sha7()}.csv')
+users = pd.read_csv(get_last_gh_users())
 
 # Get location from manual input, or from Github user profiles.
 users['location'] = users['gh_user'].apply(gh_user2location)
