@@ -445,7 +445,7 @@ GH_USER2LOCATION = {
     # https://www.aero.iitb.ac.in/~prabhu
     'prabhuramachandran': 'Bombay, IND',
     # This is a bot
-    'meeseeksmachine': 'N/K',
+    'meeseeksmachine': 'N/A',
     # An email in git log is ncsu.edu.  Alex Griffing NCSU author on
     # https://doi.org/10.1093/molbev/msw114
     'argriffing': 'North Carolina, USA',
