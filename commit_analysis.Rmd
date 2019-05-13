@@ -99,7 +99,3 @@ by_country_pop = (by_country_pop
                   .sort_values('commits_per_million', ascending=False))
 by_country_pop
 ```
-
-```{python}
-
-```
