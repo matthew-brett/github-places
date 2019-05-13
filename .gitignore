@@ -5,3 +5,4 @@ __pycache__
 .pytest_cache/
 # People may not want this data dumped online
 .user_cache.json
+.ipynb_checkpoints/
