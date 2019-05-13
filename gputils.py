@@ -5,7 +5,7 @@ from os.path import abspath
 import requests
 import json
 import re
-from subprocess import check_output
+from subprocess import check_output, PIPE
 from collections import namedtuple, OrderedDict, Counter
 from datetime import datetime
 
@@ -339,3 +339,10 @@ def lupdate(left, right):
     for key in left:
         if key in right:
             left[key] = right[key]
+
+
+def get_sha7(sha='HEAD', cwd=None):
+    return check_output(['git', 'log', '-1', sha, '--format=%h'],
+                        stderr=PIPE,
+                        cwd=cwd,
+                        text=True).strip()

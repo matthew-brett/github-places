@@ -4,11 +4,14 @@ See the `guess_gh_user` method of :class:`RepoContributor` for the algorithm.
 """
 
 from argparse import ArgumentParser
-from subprocess import check_output
+from os.path import exists
+from subprocess import CalledProcessError
 
 import pandas as pd
 
-from gputils import Repo, REPO2ORG, merge_dicts, update_subdicts
+from gputils import Repo, REPO2ORG, merge_dicts, update_subdicts, get_sha7
+
+DEFAULT_MIN_COMMITS=25
 
 
 # For contributors where automated detection of Github user fails.
@@ -194,7 +197,7 @@ merge_dicts(NAME2GH_USER['numpy'], NAME2GH_USER['scipy'])
 
 def contributors_for(repo_name, org_name=None,
                      start_from=None,
-                     min_commits=50):
+                     min_commits=DEFAULT_MIN_COMMITS):
     start_from = {} if start_from is None else start_from
     update_subdicts(start_from, NAME2GH_USER)
     repo = Repo(repo_name, org_name)
@@ -208,7 +211,7 @@ def contributors_for(repo_name, org_name=None,
     return contribs
 
 
-def all_contributors(start_from=None, min_commits=50):
+def all_contributors(start_from=None, min_commits=DEFAULT_MIN_COMMITS):
     all_contribs = {}
     for repo_name in REPO2ORG:
         all_contribs[repo_name] = contributors_for(repo_name,
@@ -218,10 +221,7 @@ def all_contributors(start_from=None, min_commits=50):
 
 
 def save_all(contrib_map, fname=None):
-    if fname is None:
-        sha7 = check_output(['git', 'log', '-1', '--format=%h'],
-                            text=True).strip()
-        fname = f'gh_user_map_{sha7}.csv'
+    fname = f'gh_user_map_{get_sha7()}.csv' if fname is None else fname
     with open(fname, 'wt') as fobj:
         fobj.write('repo,n_commits,name,email,gh_user\n')
         for repo_name, contribs in contrib_map.items():
@@ -242,21 +242,38 @@ def df2gh_map(df):
     return mapping
 
 
+def get_last_gh_users():
+    start_at = 'HEAD'
+    while True:
+        try:
+            sha = get_sha7(start_at)
+        except CalledProcessError:
+            return None
+        fname = f'gh_user_map_{sha}.csv'
+        if exists(fname):
+            return fname
+        start_at += '^'
+
+
 def main():
     parser = ArgumentParser()
     parser.add_argument(
         '-n', '--min-commits',
         type=int,
-        default=50,
+        default=DEFAULT_MIN_COMMITS,
         help='Minimum number of commits per repo to qualify for GH user check')
     parser.add_argument(
         '-o', '--out-fname',
         help='Output filename')
     parser.add_argument(
         '-s', '--start-from',
-        help='Path to CSV file with established mappings to start from')
+        help='Path to CSV file with established mappings to start from'
+        'or LAST to start from most recent in Git history')
     args = parser.parse_args()
-    start_from = df2gh_map(args.start_from) if args.start_from else None
+    start_from = args.start_from
+    if start_from == 'LAST':
+        start_from = get_last_gh_users()
+    start_from = df2gh_map(start_from) if start_from else None
     repo_contribs = all_contributors(start_from=start_from,
                                      min_commits=args.min_commits)
     save_all(repo_contribs, fname=args.out_fname)

@@ -1,4 +1,4 @@
-""" Detect and analyze countries for Git / Github contributors
+""" Estimate countries for Git / Github in contributor data table.
 """
 
 from os.path import exists
@@ -12,7 +12,7 @@ import numpy as np
 
 import pandas as pd
 
-from gputils import GH, lupdate, Repo, gh_user2ev_emails
+from gputils import GH, lupdate, Repo, gh_user2ev_emails, get_sha7
 
 # Country data from various sources.  See process_countries.py
 country_data = pd.read_csv('country_data.csv')
@@ -1095,8 +1095,7 @@ def user_report(gh_user, user_df, browser=False):
 
 
 # Read estimated Github usernames and other user data.
-short_sha = '8d745da'
-users = pd.read_csv(f'gh_user_map_{short_sha}.csv')
+users = pd.read_csv(f'gh_user_map_{get_sha7()}.csv')
 
 # Get location from manual input, or from Github user profiles.
 users['location'] = users['gh_user'].apply(gh_user2location)
