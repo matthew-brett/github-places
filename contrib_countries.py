@@ -1094,24 +1094,29 @@ def user_report(gh_user, user_df, browser=False):
             check_call(['open', 'https:' + gh_pages[0]])
 
 
-# Read estimated Github usernames and other user data.
-users = pd.read_csv(get_last_gh_users())
+def main():
+    # Read estimated Github usernames and other user data.
+    users = pd.read_csv(get_last_gh_users())
 
-# Get location from manual input, or from Github user profiles.
-users['location'] = users['gh_user'].apply(gh_user2location)
-# Estimate country from the location data.  The function will print helpful
-# information for missing locations or invalid countries.
-users['country_code'] = users['gh_user'].apply(gh_user2country)
+    # Get location from manual input, or from Github user profiles.
+    users['location'] = users['gh_user'].apply(gh_user2location)
+    # Estimate country from the location data.  The function will print helpful
+    # information for missing locations or invalid countries.
+    users['country_code'] = users['gh_user'].apply(gh_user2country)
 
-# Write country data to CSV
-users.to_csv('users_locations.csv', index=False)
-# Save cached Github user data, to save Github queries.
-USER_GETTER.save_cache()
+    # Write country data to CSV
+    users.to_csv('users_locations.csv', index=False)
+    # Save cached Github user data, to save Github queries.
+    USER_GETTER.save_cache()
 
-# Generate report for first user without country
-# This allows me to re-run the file from IPython, to review date for users with
-# missing countries, and edit the GH_USER2LOCATION data.
-bads = users['country_code'].isna()
-if np.any(bads):
-    gh_user = users.loc[bads].iloc[0]['gh_user']
-    user_report(gh_user, users, browser=True)
+    # Generate report for first user without country
+    # This allows me to re-run the file from IPython, to review date for users with
+    # missing countries, and edit the GH_USER2LOCATION data.
+    bads = users['country_code'].isna()
+    if np.any(bads):
+        gh_user = users.loc[bads].iloc[0]['gh_user']
+        user_report(gh_user, users, browser=True)
+
+
+if __name__ == '__main__':
+    main()
