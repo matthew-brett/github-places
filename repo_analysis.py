@@ -15,7 +15,7 @@ users.head()
 nk_users = users[users['country_code'] == 'N/K']
 nk_users = nk_users[['repo', 'n_commits', 'gh_user']]
 
-pct_users_nk = len(nk_users) / len(users)
+pct_users_nk = len(nk_users) / len(users) * 100
 
 pct_sc_missing = nk_users['n_commits'].sum() / users['n_commits'].sum() * 100
 
@@ -37,11 +37,12 @@ for repo_name in users['repo'].unique():
     found_commits = (nnk_users
                      [nnk_users['repo'] == repo_name]
                      ['n_commits'].sum())
-    repo_missing_pcts[repo_name] = found_commits / total_commits * 100
+    repo_missing_pcts[repo_name] = dict(found=found_commits,
+                                        total=total_commits)
 
 print(f"""\
-I could not find the location for {pct_users_nk:.2f}% of SCs, and
-therefore {pct_sc_missing:.2f}% of SC contributor commits.
+I could not find the location for {pct_users_nk:.1f}% of SCs, and
+therefore {pct_sc_missing:.1f}% of SC contributor commits.
 
 For {pct_gh_specified:.1f}% of SCs, I had to work out the corresponding
 Github user manually.
@@ -52,5 +53,11 @@ manually by various searches.
 Percentage of total repository commits included in the analysis, by repository:
 """)
 
-for repo, pct in repo_missing_pcts.items():
+found = total = 0
+for repo, values in repo_missing_pcts.items():
+    pct = values['found'] / values['total'] * 100
+    found += values['found']
+    total += values['total']
     print(f'*   {repo}: {pct:.1f}')
+
+print(f'\nOverall percentage {found / total * 100:.1f}')

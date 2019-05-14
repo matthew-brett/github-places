@@ -1,8 +1,6 @@
 """ Estimate countries for Git / Github in contributor data table.
 """
 
-from os.path import exists
-import json
 import re
 import github3
 from subprocess import check_call
@@ -12,7 +10,8 @@ import numpy as np
 
 import pandas as pd
 
-from gputils import (GH, lupdate, Repo, gh_user2ev_emails, get_last_gh_users)
+from gputils import (GH, lupdate, gh_user2ev_emails, get_last_gh_users,
+                     RepoGetter, UserGetter)
 
 # Country data from various sources.  See process_countries.py
 country_data = pd.read_csv('country_data.csv')
@@ -916,72 +915,7 @@ def gh_user2country(gh_user):
     return country
 
 
-class RepoGetter:
-    """ Cache and return read data for repositories
-    """
-
-    def __init__(self):
-        self.clear_cache()
-
-    def clear_cache(self):
-        self._rcache = {}
-        self._ccache = {}
-
-    def get_repo(self, repo_name):
-        if repo_name not in self._rcache:
-            self._rcache[repo_name] = Repo(repo_name)
-        return self._rcache[repo_name]
-
-    def get_contributors(self, repo_name):
-        repo = self.get_repo(repo_name)
-        if repo_name not in self._ccache:
-            self._ccache[repo_name] = repo.contributors()
-        return self._ccache[repo_name]
-
-
 REPO_GETTER = RepoGetter()
-
-
-class UserGetter:
-    """ Cache and return Github user data
-    """
-
-    def __init__(self, cache_fname=None):
-        self._GH = GH
-        self.cache_fname = cache_fname
-        if cache_fname:
-            self.load_cache()
-        else:
-            self.clear_cache()
-
-    def load_cache(self):
-        if self.cache_fname is None:
-            raise ValueError('No cache_fname to load from')
-        if not exists(self.cache_fname):
-            self._cache = {}
-            return
-        with open(self.cache_fname, 'rt') as fobj:
-            self._cache = json.load(fobj)
-
-    def save_cache(self):
-        if self.cache_fname is None:
-            raise ValueError('No cache_fname to save to')
-        with open(self.cache_fname, 'wt') as fobj:
-            json.dump(self._cache, fobj)
-
-    def clear_cache(self):
-        self._cache = {}
-
-    def __call__(self, gh_user):
-        if gh_user not in self._cache:
-            self._cache[gh_user] = self._get_gh_user(gh_user)
-        return self._cache[gh_user]
-
-    def _get_gh_user(self, gh_user):
-        if gh_user.startswith('+') or gh_user in ('None',):
-            return None
-        return self._GH.user(gh_user).as_dict()
-
 
 USER_GETTER = UserGetter('.user_cache.json')
 
