@@ -31,3 +31,12 @@ by_country_gdp['commits_per_million'] = (by_country_gdp['n_commits'] /
 print(by_country_gdp.head(10).sort_values(
     'commits_per_million',
     ascending=False))
+
+from tablulate import tabulate
+
+tab = tabulate(by_country_pop,
+         headers='Country,Commits,Population (millions),Commits/million'.split(','),
+         tablefmt='pipe', 
+         floatfmt='0.1f',
+        showindex=False)
+print(tab)
