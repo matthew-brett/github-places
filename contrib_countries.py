@@ -921,6 +921,9 @@ class RepoGetter:
     """
 
     def __init__(self):
+        self.clear_cache()
+
+    def clear_cache(self):
         self._rcache = {}
         self._ccache = {}
 
