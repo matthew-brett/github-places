@@ -730,6 +730,9 @@ GH_USER2LOCATION = {
     # https://github.com/MPIBGC-TEE/CompartmentalSystems/graphs/contributors
     # https://github.com/MPIBGC-TEE page lists mamueller@bgc-jena.mpg.de
     'mamueller': 'Jena, Germany',
+    # https://www.linkedin.com/in/eric-wieser-2085445b
+    # Despite Github page, he's in Cambridge now, working for Amazon.
+    'eric-wieser': 'Cambridge, UK',
 }
 
 
