@@ -54,13 +54,14 @@ GH_USER2LOCATION = {
     # https://wiki.kubuntu.org/JulianTaylor/MOTUApplication
     # Now seems to be in the European Southern Observatory near Munich
     # www.eso.org/~jagonzal/ADASS-2016/P6-11/P6-11.tex
+    # https://www.eso.org/sci/libraries/SPIE2016/9910-111.pdf
     'juliantaylor': 'Bayern, Germany',
     # I know him via BIDS.
     'mattip': 'Israel',
     # Stefan vdW told me.
     'seberg': 'Göttingen, Germany',
-    # Warren had an Enthought address until 2012 in the Scipy logs.  Also this:
-    # https://www.instantcheckmate.com/people/warren-weckesser/
+    # Warren had an Enthought address until 2012 in the Scipy logs.
+    # https://web.archive.org/web/20180510010523/http://www.warrenweckesser.net:80/menu_cv.html
     'WarrenWeckesser': 'Austin, Texas',
     # Found: alex <argriffi@ncsu.edu>, author of
     # https://github.com/scipy/scipy/commit/3e8cb71f0118b1603f42b8aafb97aa0452401a1e

@@ -41,6 +41,7 @@ NAME2GH_USER = {
         # https://mail.python.org/pipermail/scipy-user/2009-March/020175.html
         # mentions PyAMG:
         # https://github.com/pyamg/pyamg/graphs/contributors
+        # Also https://web.archive.org/web/20110209055022/http://graphics.cs.uiuc.edu/~wnbell/
         'Nathan Bell': 'wnbell',
         # As for Numpy.
         # https://www.linkedin.com/in/pierre-g%C3%A9rard-marchant-1322a028
