@@ -34,6 +34,7 @@ GH_USER2LOCATION = {
     'WeatherGod': 'Lexington, MA, USA',
     # https://www.physics.utoronto.ca/%7Eesalesde/
     # https://twitter.com/QuLogic
+    # https://gitlab.com/QuLogic
     'QuLogic': 'Toronto, Canada',
     # Probably
     # https://www.researchgate.net/profile/Jae-Joon_Lee
